@@ -355,8 +355,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User management routes
   app.get("/api/users", authenticateToken, requireRole(['admin']), async (req, res) => {
     try {
-      // This would need to be implemented in storage - for now return empty array
-      res.json([]);
+      console.log('Getting all users...');
+      const users = await storage.getAllUsers();
+      console.log('Found users:', users.length);
+      res.json(users);
     } catch (error) {
       console.error('Get users error:', error);
       res.status(500).json({ message: "Lỗi hệ thống" });
@@ -592,17 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User management routes
-  app.get("/api/users", authenticateToken, requireRole(['admin']), async (req, res) => {
-    try {
-      // Get all users for admin
-      const users = await storage.getAllUsers();
-      res.json(users);
-    } catch (error) {
-      console.error('Get users error:', error);
-      res.status(500).json({ message: "Lỗi hệ thống" });
-    }
-  });
+
 
   app.put("/api/users/:id", authenticateToken, requireRole(['admin']), async (req, res) => {
     try {

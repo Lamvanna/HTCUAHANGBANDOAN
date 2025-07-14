@@ -131,7 +131,7 @@ export default function UserManagement() {
     const matchesSearch = user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           user.username.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = roleFilter === "" || user.role === roleFilter;
+    const matchesRole = roleFilter === "all" || roleFilter === "" || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
@@ -182,7 +182,7 @@ export default function UserManagement() {
                   <SelectValue placeholder="Lọc theo vai trò" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tất cả vai trò</SelectItem>
+                  <SelectItem value="all">Tất cả vai trò</SelectItem>
                   <SelectItem value="admin">Quản trị viên</SelectItem>
                   <SelectItem value="staff">Nhân viên</SelectItem>
                   <SelectItem value="user">Người dùng</SelectItem>
