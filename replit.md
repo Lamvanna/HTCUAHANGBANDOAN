@@ -131,3 +131,13 @@ The application uses a PostgreSQL database with the following main tables:
 - Image upload and management for products and banners
 - Order tracking and status updates
 - Review and rating system with moderation
+- Complete user management system with real database integration
+- PDF/CSV export functionality for orders and reports
+- VSCode development environment setup guide
+
+### Recent Changes
+- **2025-01-14**: Fixed user management to display real users from database instead of mock data
+- **2025-01-14**: Added complete user management functionality (edit user info, role changes, account lock/unlock)
+- **2025-01-14**: Implemented PDF and CSV export functionality for order management
+- **2025-01-14**: Created comprehensive VSCode development guide (VSCODE_GUIDE.md)
+- **2025-01-14**: Enhanced user management with search and filtering capabilities
