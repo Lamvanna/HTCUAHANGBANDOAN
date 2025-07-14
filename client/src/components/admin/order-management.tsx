@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Search, FileText, Download, Eye, Edit, Trash2, Calendar, Phone, MapPin, Printer } from "lucide-react";
+import { Search, FileText, Download, Eye, Edit, Trash2, Calendar, Phone, MapPin, Printer, FileDown } from "lucide-react";
 
 export default function OrderManagement() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -192,6 +192,197 @@ export default function OrderManagement() {
     }
   };
 
+  const handleExportPDF = () => {
+    const filteredOrders = orders.filter(order => {
+      const matchesSearch = !searchQuery || 
+        order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.customerPhone.includes(searchQuery) ||
+        order.id.toString().includes(searchQuery);
+      
+      const matchesStatus = !statusFilter || statusFilter === 'all' || order.status === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
+
+    let pdfContent = `
+      <html>
+        <head>
+          <title>Báo cáo đơn hàng Na Food</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .company-name { font-size: 24px; font-weight: bold; color: #2563eb; }
+            .report-title { font-size: 20px; margin: 10px 0; }
+            .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+            .table th { background-color: #f8f9fa; }
+            .footer { margin-top: 30px; text-align: center; font-size: 14px; color: #666; }
+            .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; }
+            .status-pending { background-color: #fef3c7; color: #d97706; }
+            .status-processing { background-color: #dbeafe; color: #2563eb; }
+            .status-shipping { background-color: #fde68a; color: #d97706; }
+            .status-delivered { background-color: #d1fae5; color: #059669; }
+            .status-cancelled { background-color: #fecaca; color: #dc2626; }
+            .summary { margin-bottom: 20px; }
+            .summary-item { display: inline-block; margin-right: 30px; font-size: 14px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="company-name">Na Food</div>
+            <div class="report-title">BÁO CÁO DANH SÁCH ĐƠN HÀNG</div>
+            <div>Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}</div>
+          </div>
+
+          <div class="summary">
+            <div class="summary-item"><strong>Tổng đơn hàng:</strong> ${filteredOrders.length}</div>
+            <div class="summary-item"><strong>Tổng doanh thu:</strong> ${filteredOrders.reduce((sum, order) => sum + parseInt(order.total), 0).toLocaleString('vi-VN')} đ</div>
+            <div class="summary-item"><strong>Đã giao:</strong> ${filteredOrders.filter(o => o.status === 'delivered').length}</div>
+            <div class="summary-item"><strong>Đang xử lý:</strong> ${filteredOrders.filter(o => o.status === 'processing').length}</div>
+          </div>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Mã đơn</th>
+                <th>Khách hàng</th>
+                <th>Điện thoại</th>
+                <th>Địa chỉ</th>
+                <th>Ngày đặt</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Thanh toán</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredOrders.map(order => {
+                const statusText = {
+                  pending: 'Chờ xử lý',
+                  processing: 'Đang xử lý',
+                  shipping: 'Đang giao',
+                  delivered: 'Đã giao',
+                  cancelled: 'Đã hủy'
+                }[order.status] || order.status;
+
+                const paymentText = {
+                  cod: 'COD',
+                  bank_transfer: 'Chuyển khoản',
+                  e_wallet: 'Ví điện tử'
+                }[order.paymentMethod] || order.paymentMethod;
+
+                return `
+                  <tr>
+                    <td>#${order.id}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.customerPhone}</td>
+                    <td>${order.customerAddress}</td>
+                    <td>${new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
+                    <td>${parseInt(order.total).toLocaleString('vi-VN')} đ</td>
+                    <td><span class="status-badge status-${order.status}">${statusText}</span></td>
+                    <td>${paymentText}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <p>Báo cáo được tạo bởi hệ thống Na Food</p>
+            <p>Hotline: 1900-xxxx | Email: info@nafood.com</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank', 'width=1200,height=800');
+    if (printWindow) {
+      printWindow.document.write(pdfContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    } else {
+      toast({
+        title: "Lỗi",
+        description: "Không thể mở cửa sổ in PDF. Vui lòng kiểm tra trình duyệt.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleExportCSV = () => {
+    const filteredOrders = orders.filter(order => {
+      const matchesSearch = !searchQuery || 
+        order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.customerPhone.includes(searchQuery) ||
+        order.id.toString().includes(searchQuery);
+      
+      const matchesStatus = !statusFilter || statusFilter === 'all' || order.status === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
+
+    const headers = [
+      'Mã đơn',
+      'Khách hàng',
+      'Điện thoại',
+      'Địa chỉ',
+      'Ngày đặt',
+      'Tổng tiền',
+      'Trạng thái',
+      'Thanh toán',
+      'Ghi chú'
+    ];
+
+    const csvRows = [
+      headers.join(','),
+      ...filteredOrders.map(order => {
+        const statusText = {
+          pending: 'Chờ xử lý',
+          processing: 'Đang xử lý',
+          shipping: 'Đang giao',
+          delivered: 'Đã giao',
+          cancelled: 'Đã hủy'
+        }[order.status] || order.status;
+
+        const paymentText = {
+          cod: 'COD',
+          bank_transfer: 'Chuyển khoản',
+          e_wallet: 'Ví điện tử'
+        }[order.paymentMethod] || order.paymentMethod;
+
+        return [
+          `#${order.id}`,
+          `"${order.customerName}"`,
+          order.customerPhone,
+          `"${order.customerAddress}"`,
+          new Date(order.createdAt).toLocaleDateString('vi-VN'),
+          parseInt(order.total).toLocaleString('vi-VN'),
+          statusText,
+          paymentText,
+          `"${order.notes || ''}"`
+        ].join(',');
+      })
+    ];
+
+    const csvContent = csvRows.join('\n');
+    const BOM = '\uFEFF'; // UTF-8 BOM để hỗ trợ tiếng Việt
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `don-hang-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Xuất CSV thành công!",
+      description: "File CSV đã được tải xuống."
+    });
+  };
+
   const getStatusColor = (status: string) => {
     const colors = {
       pending: 'bg-yellow-100 text-yellow-800',
@@ -239,12 +430,20 @@ export default function OrderManagement() {
           <p className="text-gray-600 mt-1">Xem và quản lý tất cả đơn hàng</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" className="bg-primary text-white hover:bg-orange-600">
+          <Button 
+            variant="outline" 
+            className="bg-primary text-white hover:bg-orange-600"
+            onClick={handleExportPDF}
+          >
             <FileText className="h-4 w-4 mr-2" />
             Xuất PDF
           </Button>
-          <Button variant="outline" className="bg-secondary text-white hover:bg-green-600">
-            <Download className="h-4 w-4 mr-2" />
+          <Button 
+            variant="outline" 
+            className="bg-secondary text-white hover:bg-green-600"
+            onClick={handleExportCSV}
+          >
+            <FileDown className="h-4 w-4 mr-2" />
             Xuất CSV
           </Button>
         </div>
