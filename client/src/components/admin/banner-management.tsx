@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Edit, Trash2, Image as ImageIcon, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Edit, Trash2, Image as ImageIcon, ArrowUp, ArrowDown, Upload } from "lucide-react";
 
 export default function BannerManagement() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -23,6 +23,9 @@ export default function BannerManagement() {
     order: 0,
     isActive: true,
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [isCompressing, setIsCompressing] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -93,6 +96,83 @@ export default function BannerManagement() {
       order: 0,
       isActive: true,
     });
+    setImageFile(null);
+    setImagePreview('');
+  };
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 600;
+        let { width, height } = img;
+        
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = (height * MAX_WIDTH) / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = (width * MAX_HEIGHT) / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          } else {
+            reject(new Error('Failed to compress image'));
+          }
+        }, 'image/jpeg', 0.8);
+      };
+      
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Lỗi",
+        description: "Vui lòng chọn file hình ảnh",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCompressing(true);
+    try {
+      const compressedImage = await compressImage(file);
+      setImageFile(file);
+      setImagePreview(compressedImage);
+      setFormData(prev => ({ ...prev, image: compressedImage }));
+    } catch (error) {
+      toast({
+        title: "Lỗi",
+        description: "Không thể xử lý hình ảnh",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -115,6 +195,8 @@ export default function BannerManagement() {
       order: banner.order,
       isActive: banner.isActive,
     });
+    setImagePreview(banner.image);
+    setImageFile(null);
   };
 
   const handleOrderChange = (bannerId: number, newOrder: number) => {
@@ -178,14 +260,63 @@ export default function BannerManagement() {
               </div>
               
               <div>
-                <Label htmlFor="image">URL hình ảnh</Label>
-                <Input
-                  id="image"
-                  value={formData.image}
-                  onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-                  placeholder="https://example.com/image.jpg"
-                  required
-                />
+                <Label htmlFor="image">Hình ảnh</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-center w-full">
+                    <label 
+                      htmlFor="image"
+                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        {isCompressing ? (
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        ) : (
+                          <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                        )}
+                        <p className="text-sm text-gray-500">
+                          <span className="font-semibold">Chọn file</span> hoặc kéo thả vào đây
+                        </p>
+                        <p className="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 10MB)</p>
+                      </div>
+                      <input 
+                        id="image" 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                  </div>
+                  {imagePreview && (
+                    <div className="flex items-center space-x-2">
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="h-16 w-16 object-cover rounded border"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-600">
+                          {imageFile?.name || "Hình ảnh hiện tại"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {imageFile ? `${(imageFile.size / 1024 / 1024).toFixed(2)} MB` : "Đã tải lên"}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setImageFile(null);
+                          setImagePreview('');
+                          setFormData(prev => ({ ...prev, image: '' }));
+                        }}
+                      >
+                        Xóa
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div>
@@ -251,14 +382,63 @@ export default function BannerManagement() {
             </div>
             
             <div>
-              <Label htmlFor="edit-image">URL hình ảnh</Label>
-              <Input
-                id="edit-image"
-                value={formData.image}
-                onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-                placeholder="https://example.com/image.jpg"
-                required
-              />
+              <Label htmlFor="edit-image">Hình ảnh</Label>
+              <div className="space-y-2">
+                <div className="flex items-center justify-center w-full">
+                  <label 
+                    htmlFor="edit-image"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      {isCompressing ? (
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      ) : (
+                        <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                      )}
+                      <p className="text-sm text-gray-500">
+                        <span className="font-semibold">Chọn file</span> hoặc kéo thả vào đây
+                      </p>
+                      <p className="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 10MB)</p>
+                    </div>
+                    <input 
+                      id="edit-image" 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                    />
+                  </label>
+                </div>
+                {imagePreview && (
+                  <div className="flex items-center space-x-2">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="h-16 w-16 object-cover rounded border"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-600">
+                        {imageFile?.name || "Hình ảnh hiện tại"}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {imageFile ? `${(imageFile.size / 1024 / 1024).toFixed(2)} MB` : "Đã tải lên"}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview('');
+                        setFormData(prev => ({ ...prev, image: '' }));
+                      }}
+                    >
+                      Xóa
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
             
             <div>
