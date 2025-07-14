@@ -104,12 +104,26 @@ The application uses a PostgreSQL database with the following main tables:
 ### Production Build
 - Frontend: Vite builds optimized static assets
 - Backend: esbuild bundles Node.js application
-- Database: Managed PostgreSQL on Neon Database
+- Database: MongoDB with native driver
+- Containerization: Docker multi-stage builds
 
 ### Environment Configuration
 - Environment variables for database connection
 - JWT secret configuration
 - Development vs production mode handling
+- Docker environment variables
+
+### Deployment Options
+1. **Docker Deployment** (Recommended)
+   - Multi-stage Dockerfile for optimized builds
+   - Docker Compose with MongoDB, Nginx, Mongo Express
+   - Nginx reverse proxy with rate limiting and SSL
+   - Health checks and auto-restart policies
+   
+2. **Direct Node.js Deployment**
+   - Traditional npm build and start
+   - Manual MongoDB setup required
+   - Manual reverse proxy configuration
 
 ### File Structure
 ```
@@ -142,6 +156,12 @@ The application uses a PostgreSQL database with the following main tables:
   - Added MongoDB connection with connection string: mongodb+srv://admin:ZQJEPt9VIlcRGVp9@lamv.tzc1slv.mongodb.net/
   - Maintained all existing functionality with MongoDB backend
   - Created auto-incrementing ID system for compatibility
+- **2025-01-14**: **DOCKER CONTAINERIZATION**: Added complete Docker support
+  - Created Dockerfile with multi-stage builds for production optimization
+  - Added docker-compose.yml with MongoDB, Nginx, and Mongo Express services
+  - Configured Nginx reverse proxy with rate limiting and SSL support
+  - Created MongoDB initialization script with sample data
+  - Added comprehensive Docker deployment guide (DOCKER_GUIDE.md)
 - **2025-01-14**: Fixed user management to display real users from database instead of mock data
 - **2025-01-14**: Added complete user management functionality (edit user info, role changes, account lock/unlock)
 - **2025-01-14**: Implemented PDF and CSV export functionality for order management
