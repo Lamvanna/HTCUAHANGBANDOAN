@@ -11,6 +11,7 @@ import Auth from "@/pages/auth";
 import Admin from "@/pages/admin";
 import Staff from "@/pages/staff";
 import UserOrders from "@/pages/user-orders";
+import ProductDetail from "@/pages/product-detail";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/admin" component={Admin} />
       <Route path="/staff" component={Staff} />
       <Route path="/orders" component={UserOrders} />
+      <Route path="/product/:id" component={ProductDetail} />
       <Route component={NotFound} />
     </Switch>
   );
