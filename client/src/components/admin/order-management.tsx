@@ -26,7 +26,7 @@ export default function OrderManagement() {
     queryFn: async () => {
       const token = localStorage.getItem('authToken');
       const params = new URLSearchParams();
-      if (statusFilter) params.append('status', statusFilter);
+      if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter);
       if (searchQuery) params.append('search', searchQuery);
       
       const response = await fetch(`/api/orders?${params}`, {
@@ -148,7 +148,7 @@ export default function OrderManagement() {
                 <SelectValue placeholder="Lọc theo trạng thái" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tất cả trạng thái</SelectItem>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
                 {statusOptions.map(option => (
                   <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                 ))}

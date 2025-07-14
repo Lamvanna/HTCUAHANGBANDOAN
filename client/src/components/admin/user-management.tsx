@@ -110,7 +110,7 @@ export default function UserManagement() {
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.username.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesRole = !roleFilter || user.role === roleFilter;
+    const matchesRole = roleFilter === "all" || !roleFilter || user.role === roleFilter;
     
     return matchesSearch && matchesRole;
   });
@@ -146,7 +146,7 @@ export default function UserManagement() {
                 <SelectValue placeholder="Lọc theo vai trò" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tất cả vai trò</SelectItem>
+                <SelectItem value="all">Tất cả vai trò</SelectItem>
                 {roleOptions.map(option => (
                   <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                 ))}
@@ -156,7 +156,7 @@ export default function UserManagement() {
               variant="outline" 
               onClick={() => { 
                 setSearchQuery(''); 
-                setRoleFilter(''); 
+                setRoleFilter('all'); 
               }}
             >
               Xóa bộ lọc

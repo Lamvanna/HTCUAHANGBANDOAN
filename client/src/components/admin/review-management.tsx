@@ -85,7 +85,10 @@ export default function ReviewManagement() {
     const matchesSearch = !searchQuery || 
       review.comment?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    return matchesSearch;
+    const matchesApproved = approvedFilter === "all" || !approvedFilter || 
+      review.isApproved.toString() === approvedFilter;
+    
+    return matchesSearch && matchesApproved;
   });
 
   // Mock additional data for reviews since we don't have full user/product data
@@ -193,7 +196,7 @@ export default function ReviewManagement() {
                 <SelectValue placeholder="Lọc theo trạng thái" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tất cả</SelectItem>
+                <SelectItem value="all">Tất cả</SelectItem>
                 <SelectItem value="true">Đã duyệt</SelectItem>
                 <SelectItem value="false">Chờ duyệt</SelectItem>
               </SelectContent>
@@ -202,7 +205,7 @@ export default function ReviewManagement() {
               variant="outline" 
               onClick={() => { 
                 setSearchQuery(''); 
-                setApprovedFilter(''); 
+                setApprovedFilter('all'); 
               }}
             >
               Xóa bộ lọc

@@ -34,7 +34,7 @@ export default function ProductManagement() {
     queryKey: ["/api/products", selectedCategory, searchQuery],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (selectedCategory) params.append('category', selectedCategory);
+      if (selectedCategory && selectedCategory !== "all") params.append('category', selectedCategory);
       if (searchQuery) params.append('search', searchQuery);
       
       const response = await fetch(`/api/products?${params}`);
@@ -329,13 +329,13 @@ export default function ProductManagement() {
                 <SelectValue placeholder="Lọc theo danh mục" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tất cả danh mục</SelectItem>
+                <SelectItem value="all">Tất cả danh mục</SelectItem>
                 {categories.map(category => (
                   <SelectItem key={category} value={category}>{category}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={() => { setSearchQuery(''); setSelectedCategory(''); }}>
+            <Button variant="outline" onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}>
               Xóa bộ lọc
             </Button>
           </div>
