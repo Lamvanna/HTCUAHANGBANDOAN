@@ -266,10 +266,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Order request body:', JSON.stringify(req.body, null, 2));
       
-      // Map camelCase frontend fields to snake_case database fields
+      // Map camelCase frontend fields to database fields with proper type conversion
       const orderData = {
         userId: req.user.id,
-        total: req.body.total,
+        total: req.body.total.toString(), // Convert number to string for decimal type
         paymentMethod: req.body.paymentMethod,
         customerName: req.body.customerName,
         customerPhone: req.body.customerPhone,
