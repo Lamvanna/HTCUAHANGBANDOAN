@@ -57,11 +57,7 @@ export default function UserManagement() {
   // Cập nhật người dùng
   const updateUserMutation = useMutation({
     mutationFn: async ({ id, userData }: { id: number; userData: z.infer<typeof editUserSchema> }) => {
-      return await apiRequest({
-        url: `/api/users/${id}`,
-        method: 'PUT',
-        body: userData,
-      });
+      return await apiRequest('PUT', `/api/users/${id}`, userData);
     },
     onSuccess: () => {
       toast({
@@ -83,11 +79,7 @@ export default function UserManagement() {
   // Thay đổi trạng thái người dùng
   const toggleUserStatusMutation = useMutation({
     mutationFn: async ({ id, isActive }: { id: number; isActive: boolean }) => {
-      return await apiRequest({
-        url: `/api/users/${id}/status`,
-        method: 'PUT',
-        body: { isActive: !isActive },
-      });
+      return await apiRequest('PUT', `/api/users/${id}/status`, { isActive: !isActive });
     },
     onSuccess: () => {
       toast({
