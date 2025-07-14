@@ -136,6 +136,12 @@ The application uses a PostgreSQL database with the following main tables:
 - VSCode development environment setup guide
 
 ### Recent Changes
+- **2025-01-14**: **MAJOR DATABASE MIGRATION**: Completely migrated from PostgreSQL to MongoDB
+  - Replaced Drizzle ORM with native MongoDB driver
+  - Updated all schemas and storage operations
+  - Added MongoDB connection with connection string: mongodb+srv://admin:ZQJEPt9VIlcRGVp9@lamv.tzc1slv.mongodb.net/
+  - Maintained all existing functionality with MongoDB backend
+  - Created auto-incrementing ID system for compatibility
 - **2025-01-14**: Fixed user management to display real users from database instead of mock data
 - **2025-01-14**: Added complete user management functionality (edit user info, role changes, account lock/unlock)
 - **2025-01-14**: Implemented PDF and CSV export functionality for order management
