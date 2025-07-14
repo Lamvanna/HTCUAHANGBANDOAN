@@ -214,12 +214,31 @@ export default function ProductManagement() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="image">URL hình ảnh</Label>
+                  <Label htmlFor="image">Chọn hình ảnh</Label>
                   <Input
                     id="image"
-                    value={formData.image}
-                    onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          setFormData(prev => ({ ...prev, image: event.target?.result as string }));
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
                   />
+                  {formData.image && (
+                    <div className="mt-2">
+                      <img 
+                        src={formData.image} 
+                        alt="Preview" 
+                        className="w-20 h-20 object-cover rounded border"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -290,12 +309,31 @@ export default function ProductManagement() {
                 />
               </div>
               <div>
-                <Label htmlFor="edit-image">URL hình ảnh</Label>
+                <Label htmlFor="edit-image">Chọn hình ảnh</Label>
                 <Input
                   id="edit-image"
-                  value={formData.image}
-                  onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        setFormData(prev => ({ ...prev, image: event.target?.result as string }));
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
                 />
+                {formData.image && (
+                  <div className="mt-2">
+                    <img 
+                      src={formData.image} 
+                      alt="Preview" 
+                      className="w-20 h-20 object-cover rounded border"
+                    />
+                  </div>
+                )}
               </div>
             </div>
             
