@@ -264,15 +264,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/orders", authenticateToken, async (req, res) => {
     try {
-      const validatedData = insertOrderSchema.parse({
-        ...req.body,
+      console.log('Order request body:', JSON.stringify(req.body, null, 2));
+      
+      // Map camelCase frontend fields to snake_case database fields
+      const orderData = {
         userId: req.user.id,
-      });
+        total: req.body.total,
+        paymentMethod: req.body.paymentMethod,
+        customerName: req.body.customerName,
+        customerPhone: req.body.customerPhone,
+        customerAddress: req.body.customerAddress,
+        items: req.body.items,
+        notes: req.body.notes || null,
+      };
+      
+      const validatedData = insertOrderSchema.parse(orderData);
       
       const order = await storage.createOrder(validatedData);
       res.status(201).json(order);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.log('Order validation errors:', JSON.stringify(error.errors, null, 2));
         return res.status(400).json({ message: "Dữ liệu không hợp lệ", errors: error.errors });
       }
       console.error('Create order error:', error);
