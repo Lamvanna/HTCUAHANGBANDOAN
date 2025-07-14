@@ -592,6 +592,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User management routes
+  app.get("/api/users", authenticateToken, requireRole(['admin']), async (req, res) => {
+    try {
+      // Get all users for admin
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error('Get users error:', error);
+      res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+  });
+
+  app.put("/api/users/:id", authenticateToken, requireRole(['admin']), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID không hợp lệ" });
+      }
+      
+      const user = await storage.updateUser(id, req.body);
+      
+      if (!user) {
+        return res.status(404).json({ message: "Không tìm thấy người dùng" });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      console.error('Update user error:', error);
+      res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+  });
+
+  app.put("/api/users/:id/status", authenticateToken, requireRole(['admin']), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID không hợp lệ" });
+      }
+      
+      const { isActive } = req.body;
+      const user = await storage.updateUser(id, { isActive });
+      
+      if (!user) {
+        return res.status(404).json({ message: "Không tìm thấy người dùng" });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      console.error('Update user status error:', error);
+      res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+  });
+
+  app.put("/api/users/:id/role", authenticateToken, requireRole(['admin']), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID không hợp lệ" });
+      }
+      
+      const { role } = req.body;
+      const user = await storage.updateUser(id, { role });
+      
+      if (!user) {
+        return res.status(404).json({ message: "Không tìm thấy người dùng" });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      console.error('Update user role error:', error);
+      res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+  });
+
   // Export routes (placeholder implementations)
   app.get("/api/orders/export/pdf", authenticateToken, requireRole(['admin', 'staff']), async (req, res) => {
     try {

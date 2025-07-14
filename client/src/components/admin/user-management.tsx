@@ -6,294 +6,334 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Search, UserCheck, UserX, Edit, Shield, User as UserIcon } from "lucide-react";
+import { Search, Edit, Shield, User as UserIcon, Lock, Unlock } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const editUserSchema = z.object({
+  fullName: z.string().min(1, "Tên không được để trống"),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  role: z.enum(["admin", "staff", "user"]),
+});
 
 export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Mock data for demonstration - in real app this would be a proper API call
-  const users: User[] = [
-    {
-      id: 1,
-      username: "admin",
-      email: "admin@nafood.com",
-      password: "hashed",
-      fullName: "Quản trị viên",
-      phone: "0123456789",
-      address: "123 Đường ABC, Quận 1, TP.HCM",
-      role: "admin",
-      isActive: true,
-      createdAt: new Date(),
-    },
-    {
-      id: 2,
-      username: "staff1",
-      email: "staff@nafood.com",
-      password: "hashed",
-      fullName: "Nhân viên 1",
-      phone: "0987654321",
-      address: "456 Đường XYZ, Quận 2, TP.HCM",
-      role: "staff",
-      isActive: true,
-      createdAt: new Date(),
-    },
-    {
-      id: 3,
-      username: "user1",
-      email: "user1@gmail.com",
-      password: "hashed",
-      fullName: "Nguyễn Văn A",
-      phone: "0111222333",
-      address: "789 Đường DEF, Quận 3, TP.HCM",
+  const editForm = useForm<z.infer<typeof editUserSchema>>({
+    resolver: zodResolver(editUserSchema),
+    defaultValues: {
+      fullName: "",
+      phone: "",
+      address: "",
       role: "user",
-      isActive: true,
-      createdAt: new Date(),
     },
-  ];
-
-  const updateUserRoleMutation = useMutation({
-    mutationFn: async ({ id, role }: { id: number; role: string }) => {
-      const token = localStorage.getItem('authToken');
-      const response = await apiRequest('PUT', `/api/users/${id}/role`, { role });
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({ title: "Cập nhật vai trò thành công!" });
-      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    }
   });
 
-  const handleRoleChange = (userId: number, newRole: string) => {
-    updateUserRoleMutation.mutate({ id: userId, role: newRole });
+  // Lấy danh sách người dùng từ API
+  const { data: users = [], isLoading } = useQuery<User[]>({
+    queryKey: ["/api/users"],
+    queryFn: async () => {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      return response.json();
+    },
+  });
+
+  // Cập nhật người dùng
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ id, userData }: { id: number; userData: z.infer<typeof editUserSchema> }) => {
+      return await apiRequest({
+        url: `/api/users/${id}`,
+        method: 'PUT',
+        body: userData,
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Thành công",
+        description: "Cập nhật thông tin người dùng thành công",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      setEditingUser(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Lỗi",
+        description: error.message || "Không thể cập nhật thông tin người dùng",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Thay đổi trạng thái người dùng
+  const toggleUserStatusMutation = useMutation({
+    mutationFn: async ({ id, isActive }: { id: number; isActive: boolean }) => {
+      return await apiRequest({
+        url: `/api/users/${id}/status`,
+        method: 'PUT',
+        body: { isActive: !isActive },
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Thành công",
+        description: "Cập nhật trạng thái người dùng thành công",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Lỗi",
+        description: error.message || "Không thể cập nhật trạng thái người dùng",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handlers
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    editForm.reset({
+      fullName: user.fullName,
+      phone: user.phone || "",
+      address: user.address || "",
+      role: user.role,
+    });
   };
 
-  const getRoleColor = (role: string) => {
-    const colors = {
-      admin: 'bg-red-100 text-red-800',
-      staff: 'bg-blue-100 text-blue-800',
-      user: 'bg-green-100 text-green-800',
-    };
-    return colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+  const handleToggleStatus = (id: number, isActive: boolean) => {
+    toggleUserStatusMutation.mutate({ id, isActive });
   };
 
-  const getRoleText = (role: string) => {
-    const roleText = {
-      admin: 'Quản trị viên',
-      staff: 'Nhân viên',
-      user: 'Người dùng',
-    };
-    return roleText[role as keyof typeof roleText] || role;
+  const onSubmitEdit = (data: z.infer<typeof editUserSchema>) => {
+    if (editingUser) {
+      updateUserMutation.mutate({ id: editingUser.id, userData: data });
+    }
   };
 
-  const getRoleIcon = (role: string) => {
-    const icons = {
-      admin: Shield,
-      staff: UserCheck,
-      user: UserIcon,
-    };
-    const Icon = icons[role as keyof typeof icons] || UserIcon;
-    return <Icon className="h-4 w-4" />;
-  };
-
+  // Lọc người dùng
   const filteredUsers = users.filter(user => {
-    const matchesSearch = !searchQuery || 
-      user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.username.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesRole = roleFilter === "all" || !roleFilter || user.role === roleFilter;
-    
+    const matchesSearch = user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          user.username.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRole = roleFilter === "" || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
-  const roleOptions = [
-    { value: 'admin', label: 'Quản trị viên' },
-    { value: 'staff', label: 'Nhân viên' },
-    { value: 'user', label: 'Người dùng' },
-  ];
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'admin': return <Shield className="h-4 w-4" />;
+      case 'staff': return <UserIcon className="h-4 w-4" />;
+      default: return <UserIcon className="h-4 w-4" />;
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-800';
+      case 'staff': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (isLoading) {
+    return <div className="p-4">Đang tải...</div>;
+  }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Quản lý người dùng</h2>
-        <p className="text-gray-600 mt-1">Xem và quản lý tất cả người dùng trong hệ thống</p>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Quản lý người dùng</h1>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Tìm kiếm người dùng..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Lọc theo vai trò" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả vai trò</SelectItem>
-                {roleOptions.map(option => (
-                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button 
-              variant="outline" 
-              onClick={() => { 
-                setSearchQuery(''); 
-                setRoleFilter('all'); 
-              }}
-            >
-              Xóa bộ lọc
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Users List */}
       <Card>
         <CardHeader>
           <CardTitle>Danh sách người dùng</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">ID</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">Thông tin</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">Liên hệ</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">Vai trò</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">Trạng thái</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="border-b">
-                    <td className="py-3 px-4 font-medium">#{user.id}</td>
-                    <td className="py-3 px-4">
-                      <div>
-                        <div className="font-medium">{user.fullName}</div>
-                        <div className="text-sm text-gray-600">@{user.username}</div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm">
-                        <div>{user.email}</div>
-                        <div className="text-gray-600">{user.phone}</div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <Select
-                        value={user.role}
-                        onValueChange={(value) => handleRoleChange(user.id, value)}
-                      >
-                        <SelectTrigger className="w-40">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roleOptions.map(option => (
-                            <SelectItem key={option.value} value={option.value}>
-                              <div className="flex items-center space-x-2">
-                                {getRoleIcon(option.value)}
-                                <span>{option.label}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    <td className="py-3 px-4">
-                      <Badge variant={user.isActive ? "default" : "secondary"}>
-                        {user.isActive ? "Hoạt động" : "Vô hiệu hóa"}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex space-x-2">
-                        <Button variant="ghost" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className={user.isActive ? "text-red-600 hover:text-red-700" : "text-green-600 hover:text-green-700"}
-                        >
-                          {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Tìm kiếm theo tên, email hoặc username..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={roleFilter} onValueChange={setRoleFilter}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Lọc theo vai trò" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Tất cả vai trò</SelectItem>
+                  <SelectItem value="admin">Quản trị viên</SelectItem>
+                  <SelectItem value="staff">Nhân viên</SelectItem>
+                  <SelectItem value="user">Người dùng</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {filteredUsers.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                Không tìm thấy người dùng nào.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-gray-200">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="border border-gray-200 px-4 py-2 text-left">ID</th>
+                      <th className="border border-gray-200 px-4 py-2 text-left">Tên đầy đủ</th>
+                      <th className="border border-gray-200 px-4 py-2 text-left">Email</th>
+                      <th className="border border-gray-200 px-4 py-2 text-left">Username</th>
+                      <th className="border border-gray-200 px-4 py-2 text-left">Vai trò</th>
+                      <th className="border border-gray-200 px-4 py-2 text-left">Trạng thái</th>
+                      <th className="border border-gray-200 px-4 py-2 text-left">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map((user) => (
+                      <tr key={user.id} className="hover:bg-gray-50">
+                        <td className="border border-gray-200 px-4 py-2">{user.id}</td>
+                        <td className="border border-gray-200 px-4 py-2">{user.fullName}</td>
+                        <td className="border border-gray-200 px-4 py-2">{user.email}</td>
+                        <td className="border border-gray-200 px-4 py-2">{user.username}</td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          <Badge variant="secondary" className={getRoleColor(user.role)}>
+                            {getRoleIcon(user.role)}
+                            <span className="ml-1">
+                              {user.role === 'admin' && 'Quản trị viên'}
+                              {user.role === 'staff' && 'Nhân viên'}
+                              {user.role === 'user' && 'Người dùng'}
+                            </span>
+                          </Badge>
+                        </td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          <Badge variant={user.isActive ? "default" : "secondary"}>
+                            {user.isActive ? "Hoạt động" : "Vô hiệu hóa"}
+                          </Badge>
+                        </td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          <div className="flex space-x-2">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="ghost" size="sm" onClick={() => handleEditUser(user)}>
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Chỉnh sửa thông tin người dùng</DialogTitle>
+                                </DialogHeader>
+                                <Form {...editForm}>
+                                  <form onSubmit={editForm.handleSubmit(onSubmitEdit)} className="space-y-4">
+                                    <FormField
+                                      control={editForm.control}
+                                      name="fullName"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Tên đầy đủ</FormLabel>
+                                          <FormControl>
+                                            <Input placeholder="Nhập tên đầy đủ" {...field} />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={editForm.control}
+                                      name="phone"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Số điện thoại</FormLabel>
+                                          <FormControl>
+                                            <Input placeholder="Nhập số điện thoại" {...field} />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={editForm.control}
+                                      name="address"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Địa chỉ</FormLabel>
+                                          <FormControl>
+                                            <Input placeholder="Nhập địa chỉ" {...field} />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={editForm.control}
+                                      name="role"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Vai trò</FormLabel>
+                                          <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl>
+                                              <SelectTrigger>
+                                                <SelectValue placeholder="Chọn vai trò" />
+                                              </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                              <SelectItem value="admin">Quản trị viên</SelectItem>
+                                              <SelectItem value="staff">Nhân viên</SelectItem>
+                                              <SelectItem value="user">Người dùng</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <div className="flex justify-end space-x-2">
+                                      <Button type="submit" disabled={updateUserMutation.isPending}>
+                                        {updateUserMutation.isPending ? "Đang cập nhật..." : "Cập nhật"}
+                                      </Button>
+                                    </div>
+                                  </form>
+                                </Form>
+                              </DialogContent>
+                            </Dialog>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className={user.isActive ? "text-red-600 hover:text-red-700" : "text-green-600 hover:text-green-700"}
+                              onClick={() => handleToggleStatus(user.id, user.isActive)}
+                              disabled={toggleUserStatusMutation.isPending}
+                            >
+                              {user.isActive ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
-
-      {/* User Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Tổng người dùng</p>
-                <p className="text-2xl font-bold text-gray-900">{users.length}</p>
-              </div>
-              <div className="bg-blue-100 p-3 rounded-full">
-                <UserIcon className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Nhân viên</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {users.filter(u => u.role === 'staff').length}
-                </p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-full">
-                <UserCheck className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Quản trị viên</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {users.filter(u => u.role === 'admin').length}
-                </p>
-              </div>
-              <div className="bg-red-100 p-3 rounded-full">
-                <Shield className="h-6 w-6 text-red-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
