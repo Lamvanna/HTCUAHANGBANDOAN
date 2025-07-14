@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Search, FileText, Download, Eye, Edit, Trash2, Calendar, Phone, MapPin } from "lucide-react";
+import { Search, FileText, Download, Eye, Edit, Trash2, Calendar, Phone, MapPin, Printer } from "lucide-react";
 
 export default function OrderManagement() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,6 +70,126 @@ export default function OrderManagement() {
 
   const handleStatusChange = (orderId: number, newStatus: string) => {
     updateOrderMutation.mutate({ id: orderId, data: { status: newStatus } });
+  };
+
+  const handlePrintInvoice = (order: Order) => {
+    const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items || '[]');
+    const orderDate = new Date(order.createdAt).toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const paymentMethodText = {
+      cod: 'Thanh toán khi nhận hàng',
+      bank_transfer: 'Chuyển khoản ngân hàng',
+      e_wallet: 'Ví điện tử'
+    }[order.paymentMethod] || order.paymentMethod;
+
+    const statusText = {
+      pending: 'Chờ xử lý',
+      processing: 'Đang xử lý',
+      shipping: 'Đang giao',
+      delivered: 'Đã giao',
+      cancelled: 'Đã hủy'
+    }[order.status] || order.status;
+
+    const invoiceContent = `
+      <html>
+        <head>
+          <title>Hóa đơn #${order.id}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .company-name { font-size: 24px; font-weight: bold; color: #2563eb; }
+            .invoice-title { font-size: 20px; margin: 10px 0; }
+            .info-section { display: flex; justify-content: space-between; margin: 20px 0; }
+            .info-block { width: 48%; }
+            .info-block h3 { margin: 0 0 10px 0; color: #374151; }
+            .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            .table th { background-color: #f8f9fa; }
+            .total-row { background-color: #f8f9fa; font-weight: bold; }
+            .footer { margin-top: 30px; text-align: center; font-size: 14px; color: #666; }
+            .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+            .status-pending { background-color: #fef3c7; color: #d97706; }
+            .status-processing { background-color: #dbeafe; color: #2563eb; }
+            .status-shipping { background-color: #fde68a; color: #d97706; }
+            .status-delivered { background-color: #d1fae5; color: #059669; }
+            .status-cancelled { background-color: #fecaca; color: #dc2626; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="company-name">Na Food</div>
+            <div class="invoice-title">HÓA ĐƠN BÁN HÀNG</div>
+            <div>Mã đơn hàng: #${order.id}</div>
+            <div>Ngày đặt: ${orderDate}</div>
+          </div>
+
+          <div class="info-section">
+            <div class="info-block">
+              <h3>Thông tin khách hàng:</h3>
+              <p><strong>Tên:</strong> ${order.customerName}</p>
+              <p><strong>Điện thoại:</strong> ${order.customerPhone}</p>
+              <p><strong>Địa chỉ:</strong> ${order.customerAddress}</p>
+            </div>
+            <div class="info-block">
+              <h3>Thông tin đơn hàng:</h3>
+              <p><strong>Trạng thái:</strong> <span class="status-badge status-${order.status}">${statusText}</span></p>
+              <p><strong>Phương thức thanh toán:</strong> ${paymentMethodText}</p>
+              ${order.notes ? `<p><strong>Ghi chú:</strong> ${order.notes}</p>` : ''}
+            </div>
+          </div>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map((item: any) => `
+                <tr>
+                  <td>${item.name}</td>
+                  <td>${item.quantity}</td>
+                  <td>${parseInt(item.price).toLocaleString('vi-VN')} đ</td>
+                  <td>${(parseInt(item.price) * item.quantity).toLocaleString('vi-VN')} đ</td>
+                </tr>
+              `).join('')}
+              <tr class="total-row">
+                <td colspan="3">Tổng cộng:</td>
+                <td>${parseInt(order.total).toLocaleString('vi-VN')} đ</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <p>Cảm ơn quý khách đã tin tưởng Na Food!</p>
+            <p>Hotline: 1900-xxxx | Email: info@nafood.com</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    if (printWindow) {
+      printWindow.document.write(invoiceContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    } else {
+      toast({
+        title: "Lỗi",
+        description: "Không thể mở cửa sổ in. Vui lòng kiểm tra trình duyệt.",
+        variant: "destructive"
+      });
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -343,14 +463,25 @@ export default function OrderManagement() {
                             variant="ghost"
                             size="sm"
                             onClick={() => setSelectedOrder(order)}
+                            title="Xem chi tiết"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => handlePrintInvoice(order)}
+                            title="In hóa đơn"
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => deleteOrderMutation.mutate(order.id)}
                             className="text-red-600 hover:text-red-700"
+                            title="Xóa đơn hàng"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
