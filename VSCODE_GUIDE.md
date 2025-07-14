@@ -1,24 +1,30 @@
-# Hướng dẫn chạy Na Food trên VSCode
+# Hướng dẫn chạy dự án Na Food trên VSCode
 
 ## Yêu cầu hệ thống
 
-### Phần mềm cần thiết
+### 1. Cài đặt phần mềm cần thiết
 - **Node.js**: Phiên bản 18 hoặc cao hơn
-- **Visual Studio Code**: Phiên bản mới nhất
-- **Git**: Để clone repository
+  - Tải tại: https://nodejs.org/
+  - Kiểm tra: `node --version` và `npm --version`
+- **VSCode**: Phiên bản mới nhất
+  - Tải tại: https://code.visualstudio.com/
+- **Git**: Để clone project
+  - Tải tại: https://git-scm.com/
 
-### Extensions VSCode khuyến nghị
-- **TypeScript and JavaScript Language Features** (có sẵn)
-- **ESLint** - Kiểm tra lỗi code
-- **Prettier** - Format code tự động
-- **Auto Rename Tag** - Rename HTML/JSX tags
-- **Bracket Pair Colorizer** - Màu sắc cho dấu ngoặc
-- **GitLens** - Git history và blame
-- **Thunder Client** - Test API (thay thế Postman)
+### 2. Extensions VSCode khuyến nghị
+Cài đặt các extensions sau trong VSCode:
+- **TypeScript**: Hỗ trợ TypeScript
+- **ES7+ React/Redux/React-Native snippets**: Snippets React
+- **Prettier - Code formatter**: Format code tự động
+- **ESLint**: Kiểm tra lỗi JavaScript/TypeScript
+- **Tailwind CSS IntelliSense**: Hỗ trợ Tailwind CSS
+- **Auto Rename Tag**: Rename tag HTML tự động
+- **Bracket Pair Colorizer**: Tô màu ngoặc
+- **GitLens**: Hỗ trợ Git nâng cao
 
-## Thiết lập dự án
+## Cài đặt dự án
 
-### 1. Clone repository
+### 1. Clone dự án
 ```bash
 git clone <repository-url>
 cd na-food
@@ -29,219 +35,251 @@ cd na-food
 npm install
 ```
 
-### 3. Thiết lập database
-Dự án sử dụng PostgreSQL với Neon Database (serverless). Database URL được cung cấp sẵn trong môi trường Replit.
+### 3. Cấu hình môi trường
+Tạo file `.env` trong thư mục gốc:
+```env
+# Database Configuration
+DATABASE_URL=mongodb+srv://admin:ZQJEPt9VIlcRGVp9@lamv.tzc1slv.mongodb.net/
 
-### 4. Khởi tạo database schema
-```bash
-npm run db:push
+# JWT Configuration
+JWT_SECRET=your-secret-key-here
+
+# Development Configuration
+NODE_ENV=development
+```
+
+### 4. Cấu hình VSCode
+Tạo file `.vscode/settings.json`:
+```json
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "emmet.includeLanguages": {
+    "typescript": "html",
+    "typescriptreact": "html"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ]
+}
+```
+
+Tạo file `.vscode/extensions.json`:
+```json
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "formulahendry.auto-rename-tag",
+    "ms-vscode.vscode-typescript-next",
+    "dsznajder.es7-react-js-snippets",
+    "eamodio.gitlens"
+  ]
+}
 ```
 
 ## Chạy dự án
 
-### Phát triển (Development)
+### 1. Chạy development server
 ```bash
 npm run dev
 ```
 
-Lệnh này sẽ:
-- Khởi chạy server Express trên port 5000
-- Khởi chạy Vite dev server cho frontend
-- Bật hot reload cho cả frontend và backend
+Hoặc có thể chạy riêng biệt:
+```bash
+# Terminal 1: Backend
+npm run dev:server
 
-### Truy cập ứng dụng
+# Terminal 2: Frontend (nếu có script riêng)
+npm run dev:client
+```
+
+### 2. Truy cập ứng dụng
 - **Frontend**: http://localhost:5000
-- **API Backend**: http://localhost:5000/api
+- **Backend API**: http://localhost:5000/api
+
+### 3. Tài khoản mặc định
+- **Admin**: 
+  - Email: admin@tgdd.com
+  - Password: 123456
+- **User thường**: Đăng ký mới qua giao diện
 
 ## Cấu trúc thư mục
 
 ```
 na-food/
-├── client/                 # Frontend React application
+├── client/                 # Frontend React
 │   ├── src/
 │   │   ├── components/     # React components
-│   │   ├── pages/          # Page components
-│   │   ├── lib/            # Utilities và helpers
-│   │   ├── hooks/          # Custom React hooks
+│   │   ├── pages/          # Route pages
+│   │   ├── hooks/          # Custom hooks
+│   │   ├── lib/            # Utilities
 │   │   └── types/          # TypeScript types
 │   └── index.html
-├── server/                 # Backend Express application
+├── server/                 # Backend Express
 │   ├── index.ts           # Server entry point
 │   ├── routes.ts          # API routes
-│   ├── storage.ts         # Database operations
-│   └── db.ts              # Database connection
-├── shared/                 # Shared types và schemas
-│   └── schema.ts          # Database schema với Drizzle ORM
-└── package.json
+│   ├── db.ts              # Database connection
+│   └── storage.ts         # Data operations
+├── shared/                 # Shared types/schemas
+│   └── schema.ts          # Zod validation schemas
+├── package.json
+└── .env                   # Environment variables
 ```
 
-## Tài khoản mặc định
+## Scripts NPM
 
-### Admin Account
-- **Username**: admin
-- **Email**: admin@tgdd.com
-- **Password**: 123456
-- **Role**: admin
-
-### Test User Account
-Bạn có thể tạo tài khoản mới thông qua trang đăng ký hoặc sử dụng tài khoản admin để quản lý.
+```json
+{
+  "dev": "Chạy development server",
+  "build": "Build production",
+  "start": "Chạy production server",
+  "db:push": "Push database schema (nếu dùng SQL)",
+  "db:studio": "Mở database studio (nếu dùng SQL)"
+}
+```
 
 ## Debugging trong VSCode
 
-### 1. Tạo file launch.json
-Tạo thư mục `.vscode` và file `launch.json`:
-
+### 1. Cấu hình debug
+Tạo file `.vscode/launch.json`:
 ```json
 {
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Server",
+      "name": "Debug Server",
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/server/index.ts",
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
-      "runtimeArgs": ["-r", "tsx/cjs"],
       "env": {
         "NODE_ENV": "development"
       },
       "console": "integratedTerminal",
-      "skipFiles": ["<node_internals>/**"]
+      "restart": true,
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"]
     }
   ]
 }
 ```
 
-### 2. Debugging Frontend
-Sử dụng Chrome DevTools hoặc cài đặt extension "Debugger for Chrome"
+### 2. Breakpoints
+- Đặt breakpoint bằng cách click vào margin trái của code
+- Chạy debug bằng F5 hoặc Run → Start Debugging
 
-### 3. Debugging API
-- Sử dụng Thunder Client extension
-- Hoặc sử dụng curl trong terminal
-- Endpoints chính:
-  - `GET /api/products` - Lấy danh sách sản phẩm
-  - `POST /api/auth/login` - Đăng nhập
-  - `GET /api/orders` - Lấy danh sách đơn hàng
+## Các vấn đề thường gặp
 
-## Scripts có sẵn
-
+### 1. Lỗi "Module not found"
 ```bash
-# Chạy development server
-npm run dev
+# Xóa node_modules và cài lại
+rm -rf node_modules package-lock.json
+npm install
+```
 
-# Build production
+### 2. Lỗi TypeScript
+```bash
+# Kiểm tra TypeScript config
+npx tsc --noEmit
+```
+
+### 3. Lỗi Database connection
+- Kiểm tra connection string trong `.env`
+- Đảm bảo MongoDB service đang chạy
+- Kiểm tra network connection
+
+### 4. Lỗi Port đã được sử dụng
+```bash
+# Tìm process đang dùng port 5000
+lsof -i :5000
+
+# Kill process
+kill -9 <PID>
+```
+
+### 5. Lỗi Build
+```bash
+# Xóa cache và build lại
+npm run clean
 npm run build
-
-# Chạy production server
-npm start
-
-# Push database schema
-npm run db:push
-
-# Generate database types
-npm run db:generate
-
-# Lint code
-npm run lint
-
-# Format code
-npm run format
 ```
 
-## Công nghệ sử dụng
+## Development Workflow
 
-### Frontend
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool và dev server
-- **Tailwind CSS** - Styling
-- **Radix UI** - Component library
-- **React Query** - Data fetching
-- **React Hook Form** - Form management
-- **Zod** - Schema validation
+### 1. Quy trình phát triển
+1. Tạo branch mới: `git checkout -b feature/ten-tinh-nang`
+2. Code và test
+3. Commit: `git commit -m "feat: mô tả thay đổi"`
+4. Push: `git push origin feature/ten-tinh-nang`
+5. Tạo Pull Request
 
-### Backend
-- **Node.js** - Runtime
-- **Express.js** - Web framework
-- **TypeScript** - Type safety
-- **JWT** - Authentication
-- **bcrypt** - Password hashing
-- **Drizzle ORM** - Database ORM
-
-### Database
-- **PostgreSQL** - Database
-- **Neon Database** - Serverless PostgreSQL provider
-
-## Troubleshooting
-
-### Lỗi thường gặp
-
-1. **Port 5000 đã được sử dụng**
-   ```bash
-   # Tìm và kill process
-   lsof -ti:5000 | xargs kill -9
-   ```
-
-2. **Database connection error**
-   - Kiểm tra DATABASE_URL trong environment
-   - Chạy `npm run db:push` để sync schema
-
-3. **Node modules error**
-   ```bash
-   # Xóa và cài lại dependencies
-   rm -rf node_modules package-lock.json
-   npm install
-   ```
-
-4. **TypeScript errors**
-   ```bash
-   # Restart TypeScript server trong VSCode
-   Ctrl+Shift+P > TypeScript: Restart TS Server
-   ```
-
-### Performance Tips
-
-1. **Tắt extensions không cần thiết** khi làm việc với dự án lớn
-2. **Sử dụng TypeScript strict mode** để catch errors sớm
-3. **Bật auto-save** trong VSCode settings
-4. **Sử dụng integrated terminal** thay vì external terminal
-
-## Workflow phát triển
-
-### 1. Tạo feature mới
-```bash
-# Tạo branch mới
-git checkout -b feature/ten-tinh-nang
-
-# Làm việc trên feature
-# ...
-
-# Commit và push
-git add .
-git commit -m "Add: mô tả tính năng"
-git push origin feature/ten-tinh-nang
-```
-
-### 2. Code style
-- Sử dụng Prettier để format code
-- Tuân thủ ESLint rules
-- Đặt tên biến và function rõ ràng
-- Viết comments cho logic phức tạp
+### 2. Code Standards
+- Sử dụng TypeScript cho type safety
+- Follow ESLint rules
+- Format code với Prettier
+- Viết component trong `client/src/components/`
+- API routes trong `server/routes.ts`
 
 ### 3. Testing
-- Test manual qua UI
-- Test API endpoints với Thunder Client
-- Kiểm tra responsive design
-- Test trên các trình duyệt khác nhau
+```bash
+# Chạy tests (nếu có)
+npm test
 
-## Liên hệ và hỗ trợ
+# Chạy linter
+npm run lint
 
-Nếu gặp vấn đề, vui lòng:
-1. Kiểm tra console logs
-2. Xem server logs trong terminal
-3. Kiểm tra network tab trong DevTools
-4. Tham khảo documentation của các thư viện sử dụng
+# Fix linting issues
+npm run lint:fix
+```
 
----
+## Deployment
 
-*Cập nhật lần cuối: $(date)*
+### 1. Build production
+```bash
+npm run build
+```
+
+### 2. Deploy lên server
+```bash
+# Start production server
+npm start
+```
+
+### 3. Environment variables production
+Đảm bảo set các biến môi trường:
+- `NODE_ENV=production`
+- `DATABASE_URL=<production-database-url>`
+- `JWT_SECRET=<secure-secret>`
+
+## Hỗ trợ
+
+### 1. Logs
+- Server logs: Console output
+- Client logs: Browser Developer Tools
+
+### 2. Database
+- MongoDB: Sử dụng MongoDB Compass hoặc mongo shell
+- Data được tạo tự động khi khởi động server
+
+### 3. Liên hệ
+- Issues: Tạo GitHub issue
+- Documentation: Xem `replit.md` cho thông tin chi tiết
+
+## Shortcuts VSCode hữu ích
+
+- `Ctrl+Shift+P`: Command Palette
+- `Ctrl+P`: Quick Open file
+- `Ctrl+Shift+F`: Search in files
+- `Ctrl+K Ctrl+S`: Keyboard shortcuts
+- `Ctrl+``: Toggle terminal
+- `F12`: Go to definition
+- `Shift+F12`: Find all references
+- `Ctrl+Shift+R`: Refactor
+- `Ctrl+Shift+O`: Go to symbol in file
