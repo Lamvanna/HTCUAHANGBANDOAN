@@ -99,6 +99,15 @@ export const insertUserSchema = createInsertSchema(users).omit({
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
   createdAt: true,
+}).extend({
+  price: z.union([z.string(), z.number()]).transform(val => {
+    if (typeof val === 'string') {
+      const parsed = parseFloat(val);
+      if (isNaN(parsed)) throw new Error('Invalid price format');
+      return parsed.toString();
+    }
+    return val.toString();
+  })
 });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({
