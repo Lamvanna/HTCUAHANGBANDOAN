@@ -111,12 +111,12 @@ export default function CartModal() {
   if (showCheckout) {
     return (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent className="w-full max-w-md">
+        <SheetContent className="w-full max-w-md flex flex-col">
           <SheetHeader>
             <SheetTitle>Thông tin đặt hàng</SheetTitle>
           </SheetHeader>
           
-          <div className="py-6 space-y-4">
+          <div className="py-6 space-y-4 flex-1 overflow-y-auto">
             <div>
               <Label htmlFor="name">Họ và tên *</Label>
               <Input
@@ -179,7 +179,7 @@ export default function CartModal() {
             </div>
           </div>
 
-          <div className="border-t pt-4">
+          <div className="border-t pt-4 flex-shrink-0">
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-semibold">Tổng cộng:</span>
               <span className="text-2xl font-bold text-primary">
@@ -211,12 +211,12 @@ export default function CartModal() {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="w-full max-w-md">
+      <SheetContent className="w-full max-w-md flex flex-col">
         <SheetHeader>
           <SheetTitle>Giỏ hàng của bạn</SheetTitle>
         </SheetHeader>
         
-        <div className="py-6 flex-1 overflow-y-auto">
+        <div className="py-6 flex-1 overflow-y-auto min-h-0">
           {items.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">Giỏ hàng trống</p>
@@ -268,7 +268,7 @@ export default function CartModal() {
         </div>
         
         {items.length > 0 && (
-          <div className="border-t pt-4">
+          <div className="border-t pt-4 flex-shrink-0">
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-semibold">Tổng cộng:</span>
               <span className="text-2xl font-bold text-primary">
