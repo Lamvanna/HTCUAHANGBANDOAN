@@ -105,7 +105,14 @@ export const insertProductSchema = z.object({
 
 export const insertOrderSchema = z.object({
   userId: z.number(),
-  total: z.number().positive("Tổng tiền phải lớn hơn 0"),
+  total: z.union([z.string(), z.number()]).transform(val => {
+    if (typeof val === 'string') {
+      const parsed = parseFloat(val);
+      if (isNaN(parsed)) throw new Error('Invalid total format');
+      return parsed;
+    }
+    return val;
+  }),
   status: z.enum(["pending", "processing", "shipping", "delivered", "cancelled"]).default("pending"),
   paymentMethod: z.enum(["cod", "bank_transfer", "e_wallet"]),
   customerName: z.string().min(1, "Tên khách hàng là bắt buộc"),
@@ -114,11 +121,18 @@ export const insertOrderSchema = z.object({
   items: z.array(z.object({
     productId: z.number(),
     name: z.string(),
-    price: z.number(),
+    price: z.union([z.string(), z.number()]).transform(val => {
+      if (typeof val === 'string') {
+        const parsed = parseFloat(val);
+        if (isNaN(parsed)) throw new Error('Invalid price format');
+        return parsed;
+      }
+      return val;
+    }),
     quantity: z.number().positive(),
     image: z.string().optional(),
   })),
-  notes: z.string().optional(),
+  notes: z.string().optional().nullable().transform(val => val || ""),
 });
 
 export const insertReviewSchema = z.object({
