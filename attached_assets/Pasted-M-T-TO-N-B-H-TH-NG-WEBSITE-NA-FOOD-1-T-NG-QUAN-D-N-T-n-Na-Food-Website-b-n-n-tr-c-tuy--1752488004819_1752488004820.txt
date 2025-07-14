@@ -1,0 +1,259 @@
+MÔ TẢ TOÀN BỘ HỆ THỐNG WEBSITE NA FOOD
+1. TỔNG QUAN DỰ ÁN
+Tên: Na Food – Website bán đồ ăn trực tuyến
+
+Kiến trúc: SPA (Single Page Application)
+
+Công nghệ:
+
+Frontend: HTML, CSS, JavaScript thuần (Vanilla JS)
+
+Backend: Node.js (Express.js)
+
+Cơ sở dữ liệu: MongoDB
+
+Authentication: JWT
+
+Triển khai: Docker + Docker Compose
+
+2. PHÂN QUYỀN NGƯỜI DÙNG
+Vai trò Quyền
+User Đăng ký, đăng nhập, tìm món, đặt hàng, thanh toán, xem/hủy đơn, đánh giá món
+Staff Quản lý đơn hàng (xem, cập nhật trạng thái, xuất đơn)
+Admin Tất cả quyền của Staff + quản lý món ăn, user, banner, thống kê
+
+3. CHỨC NĂNG CHÍNH
+✨ Người dùng (index.html)
+Xem danh sách món ăn (lọc, tìm kiếm)
+
+Chi tiết món ăn + đánh giá
+
+Giỏ hàng, thanh toán với nhiều phương thức:
+
+COD
+
+Chuyển khoản
+
+Ví điện tử
+
+Quản lý đơn hàng đã đặt (xem chi tiết, hủy nếu chưa giao)
+
+Đánh giá món ăn sau khi đơn giao
+
+🔐 Đăng ký / Đăng nhập (JWT)
+Đăng ký: tên, email, password
+
+Đăng nhập: xác thực JWT, lưu vào localStorage
+
+Phân quyền ngay sau login
+
+🛒 Quản lý đơn hàng (Admin/Staff)
+Xem danh sách đơn hàng, chi tiết đơn
+
+Cập nhật trạng thái:
+
+Chờ xử lý → Đang giao → Đã giao
+
+Hủy đơn
+
+Xuất đơn PDF / Xuất tất cả đơn CSV
+
+Xóa đơn hàng
+
+🍽 Quản lý món ăn (Admin)
+Thêm/Sửa/Xóa món ăn
+
+Lọc theo danh mục
+
+Quản lý thông tin: tên, mô tả, ảnh, giá, loại món
+
+👥 Quản lý người dùng (Admin)
+Danh sách người dùng
+
+Đổi vai trò (user ↔ staff ↔ admin)
+
+Khóa / mở tài khoản
+
+💬 Quản lý đánh giá món ăn (Admin)
+Duyệt, ẩn, hoặc xóa đánh giá
+
+Review được hiển thị ở chi tiết món
+
+🖼 Quản lý banner (Admin)
+Thêm, sửa, xóa banner quảng cáo
+
+Sắp xếp thứ tự hiển thị banner trang chủ
+
+📊 Thống kê hệ thống (Admin)
+Doanh thu theo ngày / tháng
+
+Top sản phẩm bán chạy
+
+Tổng số đơn theo trạng thái
+
+Hiển thị biểu đồ doanh thu
+
+4. CẤU TRÚC THƯ MỤC FRONTEND
+pgsql
+Copy
+Edit
+frontend/
+├── index.html
+├── admin.html
+├── assets/
+│ ├── css/
+│ │ ├── index/
+│ │ │ ├── header.css
+│ │ │ ├── products.css
+│ │ │ ├── detail.css
+│ │ │ ├── cart.css
+│ │ │ ├── checkout.css
+│ │ │ ├── orders.css
+│ │ │ ├── auth.css
+│ │ │ ├── review.css
+│ │ │ └── payment.css
+│ │ ├── admin/
+│ │ │ ├── dashboard.css
+│ │ │ ├── product.css
+│ │ │ ├── order.css
+│ │ │ ├── user.css
+│ │ │ ├── review.css
+│ │ │ ├── banner.css
+│ │ │ ├── report.css
+│ │ │ ├── export.css
+│ │ │ └── login.css
+│ ├── js/
+│ │ ├── index/
+│ │ │ ├── header.js
+│ │ │ ├── products.js
+│ │ │ ├── detail.js
+│ │ │ ├── cart.js
+│ │ │ ├── checkout.js
+│ │ │ ├── orders.js
+│ │ │ ├── auth.js
+│ │ │ ├── review.js
+│ │ │ └── payment.js
+│ │ ├── admin/
+│ │ │ ├── dashboard.js
+│ │ │ ├── product.js
+│ │ │ ├── order.js
+│ │ │ ├── user.js
+│ │ │ ├── review.js
+│ │ │ ├── banner.js
+│ │ │ ├── report.js
+│ │ │ ├── export.js
+│ │ │ └── login.js
+│ │ └── utils.js
+5. CẤU TRÚC THƯ MỤC BACKEND
+pgsql
+Copy
+Edit
+backend/
+├── config/
+│ └── db.js
+├── controllers/
+│ ├── authController.js
+│ ├── productController.js
+│ ├── orderController.js
+│ ├── userController.js
+│ ├── reviewController.js
+│ ├── bannerController.js
+│ └── statisticController.js
+├── middlewares/
+│ ├── authMiddleware.js
+│ ├── roleMiddleware.js
+│ └── errorMiddleware.js
+├── models/
+│ ├── User.js
+│ ├── Product.js
+│ ├── Order.js
+│ ├── Review.js
+│ └── Banner.js
+├── routes/
+│ ├── authRoutes.js
+│ ├── productRoutes.js
+│ ├── orderRoutes.js
+│ ├── userRoutes.js
+│ ├── reviewRoutes.js
+│ ├── bannerRoutes.js
+│ └── statisticRoutes.js
+├── utils/
+│ ├── generateToken.js
+│ ├── exportPdf.js
+│ └── exportCsv.js
+├── validators/
+│ ├── authValidator.js
+│ ├── productValidator.js
+│ ├── orderValidator.js
+│ ├── userValidator.js
+│ ├── reviewValidator.js
+│ └── bannerValidator.js
+├── server.js
+├── Dockerfile
+├── .env
+└── package.json
+6. CẤU HÌNH DOCKER
+Dockerfile (backend)
+dockerfile
+Copy
+Edit
+FROM node:20-alpine
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+
+EXPOSE 5000
+CMD ["node", "server.js"]
+docker-compose.yml
+yaml
+Copy
+Edit
+version: "3.9"
+services:
+backend:
+build: ./backend
+ports:
+- "5000:5000"
+environment:
+- MONGO_URI=mongodb://mongo:27017/nafood
+depends_on:
+- mongo
+mongo:
+image: mongo
+ports:
+- "27017:27017"
+volumes:
+- mongo-data:/data/db
+volumes:
+mongo-data:
+7. API ENDPOINTS (Chuẩn RESTful)
+Method Endpoint Vai trò Chức năng
+POST /auth/register Public Đăng ký tài khoản
+POST /auth/login Public Đăng nhập
+GET /products All Lấy danh sách món
+GET /products/:id All Chi tiết món
+POST /products Admin Thêm món
+PUT /products/:id Admin Sửa món
+DELETE /products/:id Admin Xóa món
+POST /orders User Đặt hàng
+GET /orders Admin/Staff Danh sách đơn
+GET /orders/me User Đơn của chính user
+PUT /orders/:id/status Admin/Staff Cập nhật trạng thái đơn
+PUT /orders/:id/cancel User Hủy đơn
+DELETE /orders/:id Admin Xóa đơn
+GET /orders/export/pdf Admin Xuất đơn PDF
+GET /orders/export/csv Admin Xuất CSV
+GET /users Admin Lấy user
+PUT /users/:id/role Admin Đổi role
+POST /reviews User Gửi review
+GET /reviews Admin Duyệt review
+DELETE /reviews/:id Admin Xóa review
+POST /banners Admin Thêm banner
+GET /banners All Xem banner
+DELETE /banners/:id Admin Xóa banner
+GET /statistics/revenue Admin Doanh thu
+GET /statistics/top-products Admin Top món ăn bán chạy
+làm phần frontend trước làm html xong rồi làm js kết nối api các thứ thấy hoạt động hết mới làm bên backend
+
