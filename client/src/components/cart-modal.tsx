@@ -48,7 +48,6 @@ export default function CartModal() {
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: CreateOrderData) => {
-      const token = localStorage.getItem('authToken');
       const response = await apiRequest('POST', '/api/orders', data);
       return response.json();
     },
