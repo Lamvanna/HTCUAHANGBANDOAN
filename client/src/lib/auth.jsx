@@ -35,12 +35,10 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const response = await apiRequest("POST", "/api/auth/login", {
+      const data = await apiRequest("POST", "/api/auth/login", {
         email,
         password,
       });
-
-      const data = await response.json();
 
       // Clear cache when switching users
       console.log('Login - Clearing orders cache');
@@ -67,9 +65,9 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     try {
-      const response = await apiRequest("POST", "/api/auth/register", userData);
-
-      const data = await response.json();
+      console.log('Registering user with data:', userData);
+      const data = await apiRequest("POST", "/api/auth/register", userData);
+      console.log('Registration response:', data);
 
       // Clear cache when registering new user
       queryClient.clear();

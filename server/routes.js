@@ -130,7 +130,9 @@ export async function registerRoutes(app) {
   // Authentication routes
   app.post("/api/auth/register", async (req, res) => {
     try {
+      console.log('Register request body:', JSON.stringify(req.body, null, 2));
       const validatedData = registerSchema.parse(req.body);
+      console.log('Validated data:', validatedData);
       const { confirmPassword, ...userData } = validatedData;
       
       // Check if user already exists
@@ -171,7 +173,11 @@ export async function registerRoutes(app) {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Dữ liệu không hợp lệ", errors: error.errors });
+        console.log('Validation errors:', JSON.stringify(error.errors, null, 2));
+        return res.status(400).json({
+          message: `Dữ liệu không hợp lệ: ${error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
+          errors: error.errors
+        });
       }
       console.error('Registration error:', error);
       res.status(500).json({ message: "Lỗi hệ thống" });
