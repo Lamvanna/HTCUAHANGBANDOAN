@@ -2,8 +2,14 @@ import { QueryClient } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let errorMessage;
+    try {
+      const errorData = await res.json();
+      errorMessage = errorData.message || errorData.error || res.statusText;
+    } catch {
+      errorMessage = await res.text() || res.statusText;
+    }
+    throw new Error(`${res.status}: ${errorMessage}`);
   }
 }
 
@@ -27,6 +33,13 @@ export async function apiRequest(method, url, data) {
   });
 
   await throwIfResNotOk(res);
+
+  // Return JSON response for successful requests
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return await res.json();
+  }
+
   return res;
 }
 

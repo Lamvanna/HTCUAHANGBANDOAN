@@ -8,7 +8,8 @@
     "build": "vite build && esbuild server/index.js --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "node start.js",
     "start:prod": "node start-prod.js",
-    "seed": "node scripts/seed-data.js"
+    "seed": "node scripts/seed-data.js",
+    "create-test-orders": "node scripts/create-test-orders.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

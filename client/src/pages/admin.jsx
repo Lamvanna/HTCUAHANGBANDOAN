@@ -7,6 +7,7 @@ import ProductManagement from "@/components/admin/product-management";
 import UserManagement from "@/components/admin/user-management";
 import OrderManagement from "@/components/admin/order-management";
 import BannerManagement from "@/components/admin/banner-management";
+import ReviewManagement from "@/components/admin/ReviewManagement";
 import Statistics from "@/components/admin/statistics";
 import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -167,16 +168,7 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="reviews">
-            <Card>
-              <CardHeader>
-                <CardTitle>Quản lý đánh giá</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
-                  Chức năng quản lý đánh giá đang được phát triển...
-                </p>
-              </CardContent>
-            </Card>
+            <ReviewManagement />
           </TabsContent>
 
           <TabsContent value="banners">

@@ -176,7 +176,7 @@ export default function ProductDetail() {
 
         {/* Reviews Section */}
         <div className="mt-16">
-          <ProductReviews productId={product.id} />
+          <ProductReviews productId={parseInt(product.id)} />
         </div>
 
         {/* Related Products */}

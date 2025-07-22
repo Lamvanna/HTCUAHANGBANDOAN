@@ -62,11 +62,18 @@ export const insertOrderSchema = z.object({
 
 export const insertReviewSchema = z.object({
   userId: z.number(),
-  productId: z.number(),
-  orderId: z.number(),
+  productId: z.union([z.string(), z.number()]).transform(val => {
+    const parsed = parseInt(val);
+    if (isNaN(parsed)) throw new Error('Invalid productId format');
+    return parsed;
+  }),
+  orderId: z.union([z.string(), z.number()]).transform(val => {
+    const parsed = parseInt(val);
+    if (isNaN(parsed)) throw new Error('Invalid orderId format');
+    return parsed;
+  }),
   rating: z.number().min(1).max(5),
-  comment: z.string().optional(),
-  isApproved: z.boolean().default(false),
+  comment: z.string().min(1, "Bình luận là bắt buộc"),
 });
 
 export const insertBannerSchema = z.object({

@@ -518,10 +518,11 @@ export async function registerRoutes(app) {
   // Review routes
   app.get("/api/reviews", async (req, res) => {
     try {
-      const { productId, approved } = req.query;
+      const { productId, approved, userId } = req.query;
       const reviews = await storage.getReviews(
         productId ? parseInt(productId) : undefined,
-        approved ? approved === 'true' : undefined
+        approved ? approved === 'true' : approved === 'false' ? false : undefined,
+        userId ? parseInt(userId) : undefined
       );
       res.json(reviews);
     } catch (error) {
@@ -532,22 +533,69 @@ export async function registerRoutes(app) {
 
   app.post("/api/reviews", authenticateToken, async (req, res) => {
     try {
+      console.log('Review request body:', JSON.stringify(req.body, null, 2));
+      console.log('User from token:', req.user);
+
       const validatedData = insertReviewSchema.parse({
         ...req.body,
         userId: req.user.id,
       });
 
+      console.log('Validated review data:', validatedData);
+
       // Check if order exists and belongs to user and is delivered
-      const order = await storage.getOrder(validatedData.orderId);
-      if (!order || order.userId !== req.user.id || order.status !== 'delivered') {
-        return res.status(400).json({ message: "Chỉ có thể đánh giá món ăn từ đơn hàng đã giao" });
+      let order;
+      try {
+        order = await storage.getOrder(validatedData.orderId);
+        console.log('Found order:', order);
+      } catch (orderError) {
+        console.error('Error fetching order:', orderError);
+        return res.status(500).json({ message: "Lỗi khi kiểm tra đơn hàng" });
       }
 
-      const review = await storage.createReview(validatedData);
+      if (!order) {
+        return res.status(400).json({ message: "Không tìm thấy đơn hàng" });
+      }
+
+      if (order.userId !== req.user.id) {
+        return res.status(400).json({ message: "Đơn hàng không thuộc về bạn" });
+      }
+
+      if (order.status !== 'delivered') {
+        return res.status(400).json({ message: `Đơn hàng chưa được giao (trạng thái: ${order.status})` });
+      }
+
+      // Check if user already reviewed this product
+      let existingReview;
+      try {
+        existingReview = await storage.getReviews(validatedData.productId, undefined, req.user.id);
+      } catch (reviewError) {
+        console.error('Error checking existing reviews:', reviewError);
+        return res.status(500).json({ message: "Lỗi khi kiểm tra đánh giá hiện có" });
+      }
+
+      if (existingReview && existingReview.length > 0) {
+        return res.status(400).json({ message: "Bạn đã đánh giá sản phẩm này rồi" });
+      }
+
+      // Create the review
+      let review;
+      try {
+        review = await storage.createReview(validatedData);
+        console.log('Created review:', review);
+      } catch (createError) {
+        console.error('Error creating review:', createError);
+        return res.status(500).json({ message: "Lỗi khi tạo đánh giá" });
+      }
+
       res.status(201).json(review);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Dữ liệu không hợp lệ", errors: error.errors });
+        console.log('Validation errors:', JSON.stringify(error.errors, null, 2));
+        return res.status(400).json({
+          message: `Dữ liệu không hợp lệ: ${error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
+          errors: error.errors
+        });
       }
       console.error('Create review error:', error);
       res.status(500).json({ message: "Lỗi hệ thống" });

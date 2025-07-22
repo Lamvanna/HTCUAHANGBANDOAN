@@ -203,6 +203,7 @@ class MongoStorage {
 
   async getOrder(id) {
     try {
+      await mongodb.ensureConnection();
       const order = await mongodb.orders.findOne({ id });
       return order;
     } catch (error) {
@@ -280,20 +281,39 @@ class MongoStorage {
   }
 
   // Review operations
-  async getReviews(productId, approved) {
+  async getReviews(productId, approved, userId) {
     try {
       const filter = {};
-      
+
       if (productId) {
         filter.productId = productId;
       }
-      
+
       if (approved !== undefined) {
         filter.approved = approved;
       }
 
+      if (userId) {
+        filter.userId = userId;
+      }
+
       const reviews = await mongodb.reviews.find(filter).sort({ createdAt: -1 }).toArray();
-      return reviews;
+
+      // Populate user information
+      const reviewsWithUserInfo = await Promise.all(
+        reviews.map(async (review) => {
+          const user = await mongodb.users.findOne({ id: review.userId });
+          const product = await mongodb.products.findOne({ id: review.productId });
+          return {
+            ...review,
+            userName: user?.fullName || user?.username || 'Người dùng',
+            userEmail: user?.email || '',
+            productName: product?.name || 'Sản phẩm không tồn tại'
+          };
+        })
+      );
+
+      return reviewsWithUserInfo;
     } catch (error) {
       console.error('Error getting reviews:', error);
       throw error;
@@ -312,12 +332,17 @@ class MongoStorage {
 
   async createReview(review) {
     try {
+      await mongodb.ensureConnection();
       const id = await mongodb.getNextId('reviews');
-      
+
       const newReview = {
         id,
-        ...review,
-        approved: false,
+        userId: review.userId,
+        productId: review.productId,
+        orderId: review.orderId,
+        rating: review.rating,
+        comment: review.comment,
+        approved: null, // null = pending, true = approved, false = rejected
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -332,6 +357,7 @@ class MongoStorage {
 
   async updateReview(id, updates) {
     try {
+      await mongodb.ensureConnection();
       const updateData = {
         ...updates,
         updatedAt: new Date()

@@ -26,15 +26,16 @@ export default function ProductReviews({ productId }) {
   const { data: reviews = [], isLoading } = useQuery({
     queryKey: ["/api/reviews", productId],
     queryFn: async () => {
-      const response = await fetch(`/api/reviews?productId=${productId}`);
+      const response = await fetch(`/api/reviews?productId=${productId}&approved=true`);
       return response.json();
     },
   });
 
-  const { data: userReview } = useQuery({
+  // Check if user has already reviewed this product
+  const { data: userReviews = [] } = useQuery({
     queryKey: ["/api/reviews", productId, "user"],
     queryFn: async () => {
-      if (!isAuthenticated) return null;
+      if (!isAuthenticated) return [];
       const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/reviews?productId=${productId}&userId=${user.id}`, {
         headers: {
@@ -46,8 +47,39 @@ export default function ProductReviews({ productId }) {
     enabled: isAuthenticated,
   });
 
+  const userReview = userReviews.find(r => r.userId === user?.id);
+
+  // Check if user has delivered orders with this product
+  const { data: deliveredOrders = [] } = useQuery({
+    queryKey: ["/api/orders/delivered", user?.id],
+    queryFn: async () => {
+      if (!isAuthenticated) return [];
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/orders?status=delivered`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: isAuthenticated,
+  });
+
+  // Check if user can review this product
+  const canReview = isAuthenticated && !userReview && deliveredOrders.some(order =>
+    order.userId === user?.id &&
+    order.items &&
+    order.items.some(item =>
+      item.productId === productId || item.id === productId
+    )
+  );
+
   const createReviewMutation = useMutation({
-    mutationFn: (reviewData) => apiRequest("POST", "/api/reviews", reviewData),
+    mutationFn: (reviewData) => {
+      console.log('Sending review data:', reviewData);
+      return apiRequest("POST", "/api/reviews", reviewData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(["/api/reviews", productId]);
       queryClient.invalidateQueries(["/api/reviews", productId, "user"]);
@@ -58,6 +90,7 @@ export default function ProductReviews({ productId }) {
       });
     },
     onError: (error) => {
+      console.error('Review submission error:', error);
       toast({
         title: "Lỗi",
         description: error.message || "Không thể gửi đánh giá",
@@ -147,8 +180,42 @@ export default function ProductReviews({ productId }) {
             </div>
           </div>
 
+          {/* Review Status Messages */}
+          {isAuthenticated && !userReview && !canReview && (
+            <div className="mt-6 text-center p-4 bg-gray-50 rounded-lg">
+              <p className="text-gray-600 mb-2">
+                💡 Bạn cần mua và nhận sản phẩm này để có thể đánh giá
+              </p>
+              <p className="text-sm text-gray-500">
+                Chỉ khách hàng đã mua hàng mới có thể đánh giá sản phẩm
+              </p>
+            </div>
+          )}
+
+          {isAuthenticated && userReview && (
+            <div className="mt-6 text-center p-4 bg-blue-50 rounded-lg">
+              <p className="text-blue-600 mb-2">
+                ✅ Bạn đã đánh giá sản phẩm này
+              </p>
+              <p className="text-sm text-blue-500">
+                Cảm ơn bạn đã chia sẻ trải nghiệm!
+              </p>
+            </div>
+          )}
+
+          {!isAuthenticated && (
+            <div className="mt-6 text-center p-4 bg-yellow-50 rounded-lg">
+              <p className="text-yellow-600 mb-2">
+                🔐 Đăng nhập để đánh giá sản phẩm
+              </p>
+              <p className="text-sm text-yellow-500">
+                Bạn cần đăng nhập và mua sản phẩm để có thể đánh giá
+              </p>
+            </div>
+          )}
+
           {/* Write Review Button */}
-          {isAuthenticated && !userReview && (
+          {isAuthenticated && !userReview && canReview && (
             <div className="mt-6 text-center">
               <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
                 <DialogTrigger asChild>
@@ -161,8 +228,10 @@ export default function ProductReviews({ productId }) {
                   <DialogHeader>
                     <DialogTitle>Đánh giá sản phẩm</DialogTitle>
                   </DialogHeader>
-                  <ReviewForm 
+                  <ReviewForm
                     productId={productId}
+                    userId={user?.id}
+                    deliveredOrders={deliveredOrders}
                     onSubmit={(data) => createReviewMutation.mutate(data)}
                     isLoading={createReviewMutation.isLoading}
                   />
@@ -284,25 +353,87 @@ export default function ProductReviews({ productId }) {
   );
 }
 
-function ReviewForm({ productId, onSubmit, isLoading }) {
+function ReviewForm({ productId, userId, deliveredOrders = [], onSubmit, isLoading }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [hoveredRating, setHoveredRating] = useState(0);
+  const [selectedOrderId, setSelectedOrderId] = useState("");
+
+  // Filter delivered orders that contain this product and belong to this user
+  const eligibleOrders = deliveredOrders.filter(order =>
+    order.userId === userId &&
+    order.items &&
+    order.items.some(item => item.productId === productId || item.id === productId)
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!comment.trim()) {
+    if (!comment.trim() || !selectedOrderId) {
+      console.log('Form validation failed:', { comment: comment.trim(), selectedOrderId });
       return;
     }
-    onSubmit({
-      productId,
+
+    const parsedProductId = parseInt(productId);
+    const parsedOrderId = parseInt(selectedOrderId);
+
+    if (isNaN(parsedProductId) || isNaN(parsedOrderId)) {
+      console.error('Invalid ID conversion:', { productId, selectedOrderId, parsedProductId, parsedOrderId });
+      return;
+    }
+
+    const reviewData = {
+      productId: parsedProductId,
+      orderId: parsedOrderId,
       rating,
       comment: comment.trim(),
+    };
+
+    console.log('Submitting review data:', reviewData);
+    console.log('Data types:', {
+      productId: typeof reviewData.productId,
+      orderId: typeof reviewData.orderId,
+      rating: typeof reviewData.rating,
+      comment: typeof reviewData.comment
     });
+
+    onSubmit(reviewData);
   };
+
+  if (eligibleOrders.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500 mb-4">
+          Bạn cần mua và nhận sản phẩm này trước khi có thể đánh giá.
+        </p>
+        <p className="text-sm text-gray-400">
+          Chỉ có thể đánh giá sản phẩm từ đơn hàng đã giao thành công.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Order Selection */}
+      <div>
+        <label className="block text-sm font-medium mb-2">
+          Chọn đơn hàng ({eligibleOrders.length} đơn hàng khả dụng)
+        </label>
+        <select
+          value={selectedOrderId}
+          onChange={(e) => setSelectedOrderId(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+          required
+        >
+          <option value="">Chọn đơn hàng đã giao...</option>
+          {eligibleOrders.map((order) => (
+            <option key={order.id} value={order.id}>
+              Đơn hàng #{order.id} - {new Date(order.createdAt).toLocaleDateString('vi-VN')} - {order.total?.toLocaleString('vi-VN')}đ
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div>
         <label className="block text-sm font-medium mb-2">
           Đánh giá của bạn
@@ -351,7 +482,11 @@ function ReviewForm({ productId, onSubmit, isLoading }) {
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button type="submit" disabled={isLoading || !comment.trim()}>
+        <Button
+          type="submit"
+          disabled={isLoading || !comment.trim() || !selectedOrderId}
+          className="min-w-[120px]"
+        >
           {isLoading ? "Đang gửi..." : "Gửi đánh giá"}
         </Button>
       </div>

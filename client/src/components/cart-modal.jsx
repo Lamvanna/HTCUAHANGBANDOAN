@@ -55,47 +55,47 @@ export default function CartModal() {
               <div className="flex-1 overflow-y-auto py-4">
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div key={item.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                       <img
                         src={item.image || "/placeholder-food.jpg"}
                         alt={item.name}
-                        className="w-16 h-16 object-cover rounded-md"
+                        className="w-16 h-16 object-cover rounded-md flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm">{item.name}</h4>
-                        <p className="text-primary font-semibold">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm truncate">{item.name}</h4>
+                        <p className="text-primary font-semibold text-sm">
                           {item.price.toLocaleString('vi-VN')}đ
                         </p>
                         <div className="flex items-center space-x-2 mt-2">
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-8 w-8 p-0"
+                            className="h-7 w-7 p-0"
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
-                          <span className="text-sm font-medium w-8 text-center">
+                          <span className="text-sm font-medium w-6 text-center">
                             {item.quantity}
                           </span>
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-8 w-8 p-0"
+                            className="h-7 w-7 p-0"
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">
+                      <div className="flex flex-col items-end space-y-2 flex-shrink-0">
+                        <p className="font-semibold text-sm">
                           {(item.price * item.quantity).toLocaleString('vi-VN')}đ
                         </p>
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 mt-1"
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
                           onClick={() => removeItem(item.id)}
                         >
                           <Trash2 className="h-4 w-4" />
