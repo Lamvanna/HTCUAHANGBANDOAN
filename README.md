@@ -1,174 +1,199 @@
-# Na Food - Vietnamese Food Delivery Platform
+# 🍜 Na Food - Vietnamese Food Delivery Platform
 
-## 🍜 Giới thiệu
+<div align="center">
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
+  <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
+</div>
 
-Na Food là một nền tảng đặt món ăn Việt Nam hiện đại, được xây dựng với full-stack JavaScript và hỗ trợ nhiều vai trò người dùng khác nhau.
+<div align="center">
+  <h3>🚀 Nền tảng đặt món ăn Việt Nam hiện đại và chuyên nghiệp</h3>
+  <p>Được xây dựng với công nghệ full-stack JavaScript, hỗ trợ đa vai trò người dùng</p>
+</div>
 
-## 🚀 Tính năng chính
+---
 
-- **Đa vai trò**: Admin, Staff, và Customer với quyền hạn riêng biệt
-- **Quản lý sản phẩm**: Thêm, sửa, xóa món ăn với hình ảnh tự động nén
-- **Giỏ hàng**: Quản lý đơn hàng real-time với localStorage
-- **Thanh toán**: Hỗ trợ COD, chuyển khoản, ví điện tử
-- **Đánh giá**: Hệ thống review có kiểm duyệt
-- **Thống kê**: Dashboard admin với charts và báo cáo
-- **Xuất báo cáo**: PDF và CSV cho đơn hàng
+## ✨ Tính năng nổi bật
 
-## 🛠️ Công nghệ sử dụng
+### 👥 **Hệ thống đa vai trò**
+- 🔐 **Admin**: Quản lý toàn bộ hệ thống, thống kê doanh thu
+- 👨‍💼 **Staff**: Xử lý đơn hàng và chăm sóc khách hàng  
+- 👤 **Customer**: Đặt món và theo dõi đơn hàng real-time
 
-- **Frontend**: React 18, TypeScript, Tailwind CSS, Radix UI
-- **Backend**: Node.js, Express, MongoDB
-- **Database**: MongoDB với auto-incrementing ID
-- **Authentication**: JWT với bcrypt
-- **Build Tools**: Vite, esbuild
-- **Containerization**: Docker với multi-stage builds
+### 🛍️ **Quản lý sản phẩm thông minh**
+- 📸 Upload và tự động nén hình ảnh
+- 🏷️ Phân loại món ăn chi tiết theo danh mục
+- ⭐ Hệ thống đánh giá và review có kiểm duyệt
+- 🔍 Tìm kiếm và lọc sản phẩm thông minh
 
-## 📖 Hướng dẫn cài đặt
+### 🛒 **Giỏ hàng & Thanh toán**
+- 💾 Lưu trữ real-time với localStorage
+- 💳 Đa phương thức thanh toán (COD, chuyển khoản, ví điện tử)
+- 📱 Responsive hoàn hảo trên mọi thiết bị
+- 🔔 Thông báo trạng thái đơn hàng tức thời
 
-### 1. Phát triển với VSCode
-Xem hướng dẫn chi tiết: [VSCODE_GUIDE.md](./VSCODE_GUIDE.md)
+### 📊 **Dashboard & Báo cáo**
+- 📈 Thống kê doanh thu và đơn hàng chi tiết
+- 📋 Xuất báo cáo PDF và CSV
+- 📊 Biểu đồ trực quan với Recharts
+- 🎯 Phân tích hiệu suất kinh doanh
 
+## 🛠️ Công nghệ & Thư viện
+
+### 🎨 **Frontend**
+```javascript
+React 18          // UI framework hiện đại với hooks
+Wouter           // Lightweight routing (2KB)
+TanStack Query   // Data fetching & caching thông minh
+Tailwind CSS     // Utility-first CSS framework
+Radix UI         // Accessible component primitives
+Framer Motion    // Animation library mượt mà
+Recharts         // Beautiful charts cho dashboard
+React Hook Form  // Form management hiệu quả
+Zod              // TypeScript-first schema validation
+```
+
+### ⚙️ **Backend**
+```javascript
+Node.js          // JavaScript runtime environment
+Express.js       // Minimal web framework
+MongoDB          // NoSQL database linh hoạt
+Mongoose         // Elegant MongoDB ODM
+JWT              // Secure authentication
+Bcrypt           // Password hashing algorithm
+Multer           // File upload middleware
+Express Session  // Session management
+```
+
+### 🔧 **Development Tools**
+```javascript
+Vite             // Lightning fast build tool
+ESBuild          // Extremely fast bundler
+PostCSS          // CSS processing pipeline
+Concurrently     // Run multiple npm scripts
+```
+
+## 🚀 Cài đặt và Chạy
+
+### 📋 **Yêu cầu hệ thống**
+- Node.js >= 18.0.0
+- MongoDB >= 5.0
+- npm hoặc yarn
+
+### ⚡ **Cài đặt nhanh**
 ```bash
+# Clone repository
+git clone https://github.com/Lamvanna/CHBANDOAN.git
+cd CHBANDOAN
+
 # Cài đặt dependencies
 npm install
 
-# Chạy development server
+# Tạo file .env
+cp .env.example .env
+
+# Khởi động MongoDB (nếu cài local)
+mongod
+
+# Chạy ứng dụng
 npm run dev
-
-# Truy cập: http://localhost:5000
 ```
 
-### 2. Chạy với Docker
-Xem hướng dẫn chi tiết: [DOCKER_GUIDE.md](./DOCKER_GUIDE.md)
-
-```bash
-# Chạy đầy đủ với Docker Compose
-docker-compose up -d
-
-# Chỉ chạy ứng dụng
-docker-compose up -d na-food-app
-```
+### 🌐 **Truy cập ứng dụng**
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:5000
+- **Database**: MongoDB trên port 27017
 
 ## 🔐 Tài khoản mặc định
 
-- **Admin**: admin@tgdd.com / 123456
-- **Mongo Express**: admin / admin123 (khi chạy Docker)
+```javascript
+// Admin Account
+Email: admin@nafood.com
+Password: admin123
+
+// Staff Account  
+Email: staff@nafood.com
+Password: staff123
+
+// Customer Account
+Email: customer@nafood.com  
+Password: customer123
+```
 
 ## 📁 Cấu trúc dự án
 
 ```
 na-food/
-├── client/                 # React frontend
-├── server/                 # Express backend
-├── shared/                 # Shared schemas
-├── Dockerfile             # Docker configuration
-├── docker-compose.yml     # Multi-service setup
-├── VSCODE_GUIDE.md        # VSCode development guide
-├── DOCKER_GUIDE.md        # Docker deployment guide
-└── replit.md             # Project documentation
+├── 📂 client/              # React frontend
+│   ├── 📂 src/
+│   │   ├── 📂 components/  # UI components
+│   │   ├── 📂 pages/       # Page components
+│   │   ├── 📂 lib/         # Utilities & hooks
+│   │   └── 📂 styles/      # CSS files
+├── 📂 server/              # Express backend
+│   ├── 📄 index.js         # Server entry point
+│   ├── 📄 routes.js        # API routes
+│   └── 📄 db.js           # Database connection
+├── 📂 shared/              # Shared schemas
+├── 📂 public/              # Static files
+└── 📄 package.json         # Dependencies
 ```
 
-## 🔧 Scripts NPM
+## 🎯 Scripts NPM
 
 ```bash
-npm run dev        # Development server
-npm run build      # Production build
-npm run start      # Production server
-npm run check      # TypeScript check
+# Development
+npm run dev              # Chạy cả frontend và backend
+npm run dev:client       # Chỉ chạy frontend
+npm run dev:server       # Chỉ chạy backend
+
+# Production
+npm run build           # Build production
+npm run start           # Chạy production server
+npm run start:prod      # Chạy với PM2
+
+# Database
+npm run seed            # Tạo dữ liệu mẫu
 ```
 
-## 🐳 Docker Commands
+## 🔒 Bảo mật
 
-```bash
-# Build image
-docker build -t na-food:latest .
+- 🔐 JWT Authentication với 7-day expiry
+- 🔒 Bcrypt password hashing
+- 🛡️ Input validation với Zod schemas
+- 🚫 CORS configuration
+- 🔍 Rate limiting protection
 
-# Run with compose
-docker-compose up -d
+## 📱 Responsive Design
 
-# View logs
-docker-compose logs -f na-food-app
+- 📱 **Mobile First**: Thiết kế ưu tiên mobile
+- 💻 **Desktop Optimized**: Tối ưu cho desktop
+- 🖥️ **Tablet Friendly**: Hỗ trợ tablet hoàn hảo
+- ⚡ **Fast Loading**: Tối ưu tốc độ tải trang
 
-# Stop services
-docker-compose down
-```
+## 🤝 Đóng góp
 
-## 🌐 API Endpoints
+1. Fork repository này
+2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Tạo Pull Request
 
-- `GET /api/health` - Health check
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
-- `GET /api/products` - Get products
-- `POST /api/orders` - Create order
-- `GET /api/statistics/overview` - Admin statistics
+## 📞 Liên hệ & Hỗ trợ
 
-## 📊 Monitoring
-
-- **Health Check**: `/api/health`
-- **Logs**: `docker-compose logs -f`
-- **Mongo Express**: `http://localhost:8081` (Docker)
-- **Nginx**: `http://localhost:80` (Production)
-
-## 🔄 Development Workflow
-
-1. Clone repository
-2. Install dependencies: `npm install`
-3. Configure environment: `.env`
-4. Start development: `npm run dev`
-5. Build for production: `npm run build`
-6. Deploy with Docker: `docker-compose up -d`
-
-## 🚀 Deployment Options
-
-### Docker (Recommended)
-- Multi-stage builds cho optimization
-- Nginx reverse proxy với SSL
-- MongoDB local hoặc cloud
-- Auto-restart và health checks
-
-### Direct Node.js
-- Traditional npm build và start
-- Cần cài đặt MongoDB riêng
-- Cần cấu hình reverse proxy
-
-## 🔒 Security Features
-
-- JWT authentication với 7-day expiry
-- bcrypt password hashing
-- Rate limiting trong Nginx
-- Input validation với Zod
-- CORS configuration
-
-## 📝 Logs và Debugging
-
-```bash
-# Development logs
-npm run dev
-
-# Docker logs
-docker-compose logs -f na-food-app
-
-# Health check
-curl http://localhost:5000/api/health
-```
-
-## 🤝 Contributing
-
-1. Fork repository
-2. Create feature branch
-3. Commit changes
-4. Create pull request
-
-## 📞 Support
-
-- **Issues**: GitHub Issues
-- **Documentation**: `replit.md`
-- **Guides**: `VSCODE_GUIDE.md`, `DOCKER_GUIDE.md`
+- 📧 **Email**: lamvanna@example.com
+- 🐛 **Issues**: [GitHub Issues](https://github.com/Lamvanna/CHBANDOAN/issues)
+- 📖 **Documentation**: [Wiki](https://github.com/Lamvanna/CHBANDOAN/wiki)
 
 ## 📄 License
 
-MIT License - Xem file LICENSE để biết thêm chi tiết.
+Dự án này được phân phối dưới giấy phép MIT. Xem file `LICENSE` để biết thêm chi tiết.
 
 ---
 
-**Na Food** - Bringing Vietnamese cuisine to your fingertips! 🍜🇻🇳
+<div align="center">
+  <h3>🍜 Na Food - Bringing Vietnamese cuisine to your fingertips! 🇻🇳</h3>
+  <p>Made with ❤️ by <a href="https://github.com/Lamvanna">Lamvanna</a></p>
+</div>

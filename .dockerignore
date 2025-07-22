@@ -27,9 +27,7 @@ logs
 .turbo
 .vercel
 .netlify
-.replit
-replit.nix
-.upm
+
 attached_assets
 VSCODE_GUIDE.md
 DOCKER_GUIDE.md
