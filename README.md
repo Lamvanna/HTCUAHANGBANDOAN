@@ -1,6 +1,6 @@
-# 🍜 **NAFOODLVN - Hệ thống quản lý nhà hàng**
+# 🏪 **HTCUAHANGBANDOAN - Hệ thống quản lý cửa hàng bán đồ ăn**
 
-> **Hệ thống quản lý nhà hàng toàn diện với giao diện web hiện đại, được xây dựng bằng React và Node.js.**
+> **Hệ thống quản lý cửa hàng bán đồ ăn toàn diện với giao diện web hiện đại, được xây dựng bằng React và Node.js.**
 
 <div align="center">
   <img src="https://img.shields.io/badge/Docker-Ready-blue?logo=docker&style=for-the-badge" alt="Docker" />
@@ -12,8 +12,8 @@
 </div>
 
 <div align="center">
-  <h3>🚀 Nền tảng đặt món ăn Việt Nam hiện đại và chuyên nghiệp</h3>
-  <p>Được xây dựng với công nghệ full-stack JavaScript, hỗ trợ đa vai trò người dùng</p>
+  <h3>🚀 Hệ thống cửa hàng bán đồ ăn hiện đại và chuyên nghiệp</h3>
+  <p>Được xây dựng với công nghệ full-stack JavaScript, hỗ trợ đa vai trò người dùng và quản lý bán hàng thông minh</p>
 </div>
 
 ---
@@ -88,8 +88,8 @@ Concurrently     // Run multiple npm scripts
 ### ⚡ **Cài đặt nhanh**
 ```bash
 # Clone repository
-git clone https://github.com/Lamvanna/CHBANDOAN.git
-cd CHBANDOAN
+git clone https://github.com/Lamvanna/HTCUAHANGBANDOAN.git
+cd HTCUAHANGBANDOAN
 
 # Cài đặt dependencies
 npm install
@@ -128,7 +128,7 @@ Password: customer123
 ## 📁 Cấu trúc dự án
 
 ```
-na-food/
+HTCUAHANGBANDOAN/
 ├── 📂 client/              # React frontend
 │   ├── 📂 src/
 │   │   ├── 📂 components/  # UI components
@@ -141,6 +141,7 @@ na-food/
 │   └── 📄 db.js           # Database connection
 ├── 📂 shared/              # Shared schemas
 ├── 📂 public/              # Static files
+├── 📂 CONGNGHEPHANMEM/     # Tài liệu công nghệ phần mềm
 └── 📄 package.json         # Dependencies
 ```
 
@@ -186,9 +187,9 @@ npm run seed            # Tạo dữ liệu mẫu
 
 ## 📞 Liên hệ & Hỗ trợ
 
-- 📧 **Email**: lamvanna@example.com
-- 🐛 **Issues**: [GitHub Issues](https://github.com/Lamvanna/CHBANDOAN/issues)
-- 📖 **Documentation**: [Wiki](https://github.com/Lamvanna/CHBANDOAN/wiki)
+- 📧 **Email**: lamna01633661157@gmail.com
+- 🐛 **Issues**: [GitHub Issues](https://github.com/Lamvanna/HTCUAHANGBANDOAN/issues)
+- 📖 **Documentation**: [Wiki](https://github.com/Lamvanna/HTCUAHANGBANDOAN/wiki)
 
 ## 📄 License
 
@@ -197,6 +198,6 @@ Dự án này được phân phối dưới giấy phép MIT. Xem file `LICENSE`
 ---
 
 <div align="center">
-  <h3>🍜 Na Food - Bringing Vietnamese cuisine to your fingertips! 🇻🇳</h3>
-  <p>Made with ❤️ by <a href="https://github.com/Lamvanna">Lamvanna</a></p>
+  <h3>🏪 HT Cửa Hàng Bán Đồ Ăn - Hệ thống quản lý hiện đại! 🇻🇳</h3>
+  <p>Made with ❤️ by <a href="https://github.com/Lamvanna">Lamvanna</a> | Updated: July 2025</p>
 </div>

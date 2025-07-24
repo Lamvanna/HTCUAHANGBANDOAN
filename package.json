@@ -1,8 +1,15 @@
 {
-  "name": "rest-express",
-  "version": "1.0.0",
+  "name": "htcuahangbandoan",
+  "version": "2.0.0",
+  "description": "Hệ thống quản lý cửa hàng bán đồ ăn hiện đại",
   "type": "module",
   "license": "MIT",
+  "author": "Lamvanna <lamna01633661157@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lamvanna/HTCUAHANGBANDOAN.git"
+  },
+  "keywords": ["restaurant", "food", "management", "react", "nodejs", "mongodb"],
   "scripts": {
     "dev": "node start.js",
     "build": "vite build && esbuild server/index.js --platform=node --packages=external --bundle --format=esm --outdir=dist",
