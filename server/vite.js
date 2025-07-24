@@ -4,6 +4,11 @@ import path from "path";
 import { createServer as createViteServer, createLogger } from "vite";
 import viteConfig from "../vite.config.js";
 import { nanoid } from "nanoid";
+import { fileURLToPath } from "url";
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const viteLogger = createLogger();
 
@@ -67,7 +72,7 @@ export async function setupVite(app, server) {
 }
 
 export function serveStatic(app) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  const distPath = path.resolve(__dirname, "..", "public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(

@@ -122,6 +122,7 @@ class MongoStorage {
 
   async getProduct(id) {
     try {
+      await mongodb.ensureConnection();
       const product = await mongodb.products.findOne({ id });
       return product;
     } catch (error) {
@@ -132,8 +133,9 @@ class MongoStorage {
 
   async createProduct(product) {
     try {
+      await mongodb.ensureConnection();
       const id = await mongodb.getNextId('products');
-      
+
       const newProduct = {
         id,
         ...product,
@@ -151,6 +153,7 @@ class MongoStorage {
 
   async updateProduct(id, updates) {
     try {
+      await mongodb.ensureConnection();
       const updateData = {
         ...updates,
         updatedAt: new Date()
@@ -171,6 +174,7 @@ class MongoStorage {
 
   async deleteProduct(id) {
     try {
+      await mongodb.ensureConnection();
       const result = await mongodb.products.deleteOne({ id });
       return result.deletedCount > 0;
     } catch (error) {
@@ -252,6 +256,7 @@ class MongoStorage {
 
   async updateOrder(id, updates) {
     try {
+      await mongodb.ensureConnection();
       const updateData = {
         ...updates,
         updatedAt: new Date()
@@ -272,6 +277,7 @@ class MongoStorage {
 
   async deleteOrder(id) {
     try {
+      await mongodb.ensureConnection();
       const result = await mongodb.orders.deleteOne({ id });
       return result.deletedCount > 0;
     } catch (error) {
@@ -283,6 +289,7 @@ class MongoStorage {
   // Review operations
   async getReviews(productId, approved, userId) {
     try {
+      await mongodb.ensureConnection();
       const filter = {};
 
       if (productId) {
@@ -322,6 +329,7 @@ class MongoStorage {
 
   async getReview(id) {
     try {
+      await mongodb.ensureConnection();
       const review = await mongodb.reviews.findOne({ id });
       return review;
     } catch (error) {
@@ -378,6 +386,7 @@ class MongoStorage {
 
   async deleteReview(id) {
     try {
+      await mongodb.ensureConnection();
       const result = await mongodb.reviews.deleteOne({ id });
       return result.deletedCount > 0;
     } catch (error) {
@@ -406,6 +415,7 @@ class MongoStorage {
 
   async getBanner(id) {
     try {
+      await mongodb.ensureConnection();
       const banner = await mongodb.banners.findOne({ id });
       return banner;
     } catch (error) {
@@ -416,6 +426,7 @@ class MongoStorage {
 
   async createBanner(banner) {
     try {
+      await mongodb.ensureConnection();
       const id = await mongodb.getNextId('banners');
 
       const newBanner = {
@@ -434,6 +445,7 @@ class MongoStorage {
 
   async updateBanner(id, updates) {
     try {
+      await mongodb.ensureConnection();
       const result = await mongodb.banners.findOneAndUpdate(
         { id },
         { $set: updates },
@@ -449,6 +461,7 @@ class MongoStorage {
 
   async deleteBanner(id) {
     try {
+      await mongodb.ensureConnection();
       const result = await mongodb.banners.deleteOne({ id });
       return result.deletedCount > 0;
     } catch (error) {
@@ -460,6 +473,7 @@ class MongoStorage {
   // Statistics
   async getOrderStats() {
     try {
+      await mongodb.ensureConnection();
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const tomorrow = new Date(today);
@@ -473,7 +487,7 @@ class MongoStorage {
         mongodb.orders.countDocuments({ status: 'delivered' })
       ]);
 
-      const todayRevenue = todayOrders.reduce((sum, order) => sum + parseFloat(order.total), 0);
+      const todayRevenue = todayOrders.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
       const newOrders = todayOrders.filter(order => order.status === 'pending').length;
 
       return {
@@ -490,6 +504,7 @@ class MongoStorage {
 
   async getTopProducts(limit = 10) {
     try {
+      await mongodb.ensureConnection();
       const pipeline = [
         { $unwind: '$items' },
         { $group: { _id: '$items.productId', orderCount: { $sum: '$items.quantity' } } },

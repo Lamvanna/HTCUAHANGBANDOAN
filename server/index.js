@@ -67,23 +67,75 @@ async function findAvailablePort(startPort) {
   });
 }
 
+// Health check endpoint for Docker
+app.get('/api/health', async (req, res) => {
+  try {
+    // Check MongoDB connection
+    await mongodb.ensureConnection();
+    await mongodb.client.db('admin').command({ ping: 1 });
+
+    res.status(200).json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      mongodb: 'connected'
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      mongodb: 'disconnected',
+      error: error.message
+    });
+  }
+});
+
 // Export the app and server setup function for manual start
 export async function startServer() {
-  // Initialize MongoDB connection
-  try {
-    await mongodb.connect();
-  } catch (error) {
-    console.warn('⚠️  Failed to connect to MongoDB, continuing without database:', error.message);
+  // Initialize MongoDB connection with retry logic for Docker
+  let dbConnected = false;
+  const maxDbRetries = 10;
+  let dbRetries = 0;
+
+  while (!dbConnected && dbRetries < maxDbRetries) {
+    try {
+      await mongodb.connect();
+      dbConnected = true;
+      console.log('✅ Database connection established');
+    } catch (error) {
+      dbRetries++;
+      console.warn(`⚠️  Failed to connect to MongoDB (attempt ${dbRetries}/${maxDbRetries}):`, error.message);
+
+      if (dbRetries >= maxDbRetries) {
+        console.error('❌ Failed to connect to MongoDB after maximum retries. Server will start without database.');
+        break;
+      }
+
+      // Wait before retrying (exponential backoff)
+      const delay = Math.min(2000 * Math.pow(2, dbRetries - 1), 30000);
+      console.log(`⏳ Waiting ${delay}ms before retry...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
   }
 
   const server = await registerRoutes(app);
 
+  // Enhanced error handling middleware
   app.use((err, _req, res, _next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
+    // Log error details for debugging
+    console.error('❌ Server error:', {
+      status,
+      message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
+
+    res.status(status).json({
+      message,
+      timestamp: new Date().toISOString()
+    });
   });
 
   // importantly only setup vite in development and after
@@ -102,22 +154,63 @@ export async function startServer() {
 export async function runServer() {
   const server = await startServer();
 
-  // Find available port starting from 5000
-  const preferredPort = parseInt(process.env.PORT) || 5000;
-  const port = await findAvailablePort(preferredPort);
+  // Docker-optimized port configuration
+  const preferredPort = parseInt(process.env.PORT) || 3000;
+  const isDocker = process.env.NODE_ENV === 'production' || process.env.DOCKER_ENV === 'true';
+
+  let port = preferredPort;
+  let host = '0.0.0.0'; // Always bind to all interfaces for Docker
+
+  // Only try to find available port in development
+  if (!isDocker) {
+    port = await findAvailablePort(preferredPort);
+    host = process.platform === 'win32' ? 'localhost' : '0.0.0.0';
+  }
 
   const listenOptions = {
     port,
-    host: process.platform === 'win32' ? 'localhost' : '0.0.0.0',
-    ...(process.platform !== 'win32' && { reusePort: true }),
+    host,
+    ...(process.platform !== 'win32' && !isDocker && { reusePort: true }),
   };
 
+  // Graceful shutdown handling
+  const gracefulShutdown = async (signal) => {
+    console.log(`\n🔄 Received ${signal}. Graceful shutdown...`);
+
+    server.close(async () => {
+      console.log('✅ HTTP server closed');
+
+      try {
+        await mongodb.disconnect();
+        console.log('✅ Database connection closed');
+      } catch (error) {
+        console.error('❌ Error closing database connection:', error);
+      }
+
+      process.exit(0);
+    });
+
+    // Force close after 10 seconds
+    setTimeout(() => {
+      console.error('❌ Could not close connections in time, forcefully shutting down');
+      process.exit(1);
+    }, 10000);
+  };
+
+  // Register signal handlers
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
   server.listen(listenOptions, () => {
-    log(`serving on port ${port} (host: ${listenOptions.host})`);
-    if (port !== preferredPort) {
+    log(`🚀 Server running on port ${port} (host: ${listenOptions.host})`);
+    if (!isDocker && port !== preferredPort) {
       log(`⚠️  Port ${preferredPort} was busy, using port ${port} instead`);
     }
     log(`🌐 Open your browser and go to: http://${listenOptions.host}:${port}`);
+
+    if (isDocker) {
+      log('🐳 Running in Docker environment');
+    }
   });
 
   return server;
