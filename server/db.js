@@ -1,51 +1,53 @@
+// Import thư viện MongoDB và dotenv
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 
+// Tải cấu hình từ file .env
 dotenv.config();
 
+// Kiểm tra biến môi trường MONGODB_URI
 if (!process.env.MONGODB_URI) {
-  throw new Error("MONGODB_URI must be set in .env file");
+  throw new Error("MONGODB_URI phải được thiết lập trong file .env");
 }
 
 class MongoDB {
   constructor() {
-    // MongoDB connection options optimized for Docker environment
+    // Cấu hình kết nối MongoDB được tối ưu cho môi trường Docker
     const options = {
-      maxPoolSize: 10,
-      minPoolSize: 2,
-      serverSelectionTimeoutMS: 10000, // Increased for Docker startup
-      socketTimeoutMS: 45000,
-      connectTimeoutMS: 10000,
-      family: 4, // Use IPv4, skip trying IPv6
-      retryWrites: true,
-      retryReads: true,
-      maxIdleTimeMS: 30000,
-      waitQueueTimeoutMS: 5000,
-      // Heartbeat frequency for better connection monitoring
-      heartbeatFrequencyMS: 10000,
+      maxPoolSize: 10,              // Số kết nối tối đa trong pool
+      minPoolSize: 2,               // Số kết nối tối thiểu trong pool
+      serverSelectionTimeoutMS: 10000, // Thời gian chờ chọn server (tăng cho Docker)
+      socketTimeoutMS: 45000,       // Thời gian chờ socket
+      connectTimeoutMS: 10000,      // Thời gian chờ kết nối
+      family: 4,                    // Sử dụng IPv4, bỏ qua IPv6
+      retryWrites: true,            // Thử lại khi ghi thất bại
+      retryReads: true,             // Thử lại khi đọc thất bại
+      maxIdleTimeMS: 30000,         // Thời gian tối đa kết nối idle
+      waitQueueTimeoutMS: 5000,     // Thời gian chờ trong queue
+      heartbeatFrequencyMS: 10000,  // Tần suất kiểm tra kết nối
     };
 
     this.client = new MongoClient(process.env.MONGODB_URI, options);
-    this.db = this.client.db('nafood');
-    this.isConnected = false;
-    this.isConnecting = false;
-    this.connectionRetries = 0;
-    this.maxRetries = 5;
+    this.db = this.client.db('nafood');  // Database chính của ứng dụng
+    this.isConnected = false;            // Trạng thái kết nối
+    this.isConnecting = false;           // Đang trong quá trình kết nối
+    this.connectionRetries = 0;          // Số lần thử kết nối lại
+    this.maxRetries = 5;                 // Số lần thử tối đa
 
-    // Set up connection event listeners
+    // Thiết lập các event listener cho kết nối MongoDB
     this.client.on('open', () => {
-      console.log('✅ MongoDB connection opened');
+      console.log('✅ Kết nối MongoDB đã mở thành công');
       this.isConnected = true;
-      this.connectionRetries = 0;
+      this.connectionRetries = 0; // Reset số lần thử kết nối
     });
 
     this.client.on('close', () => {
-      console.log('❌ MongoDB connection closed');
+      console.log('❌ Kết nối MongoDB đã đóng');
       this.isConnected = false;
     });
 
     this.client.on('error', (error) => {
-      console.error('❌ MongoDB connection error:', error);
+      console.error('❌ Lỗi kết nối MongoDB:', error);
       this.isConnected = false;
     });
 

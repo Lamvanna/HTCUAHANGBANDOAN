@@ -1,3 +1,4 @@
+// Import các thư viện cần thiết
 import express from "express";
 import path from "path";
 import { registerRoutes } from "./routes.js";
@@ -5,32 +6,39 @@ import { setupVite, serveStatic, log } from "./vite.js";
 import { mongodb } from "./db.js";
 import { createServer } from "http";
 
+// Khởi tạo ứng dụng Express
 const app = express();
+
+// Cấu hình middleware để xử lý JSON và form data (giới hạn 50MB)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
-// Serve uploaded files
+// Phục vụ các file đã upload (hình ảnh, tài liệu)
 app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
+// Middleware ghi log cho các API request
 app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
+  const start = Date.now(); // Thời gian bắt đầu request
+  const path = req.path;    // Đường dẫn API
   let capturedJsonResponse = undefined;
 
+  // Ghi đè phương thức res.json để capture response
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
     capturedJsonResponse = bodyJson;
     return originalResJson.apply(res, [bodyJson, ...args]);
   };
 
+  // Khi response hoàn thành, ghi log
   res.on("finish", () => {
-    const duration = Date.now() - start;
+    const duration = Date.now() - start; // Tính thời gian xử lý
     if (path.startsWith("/api")) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
 
+      // Cắt ngắn log nếu quá dài (tối đa 80 ký tự)
       if (logLine.length > 80) {
         logLine = logLine.slice(0, 79) + "…";
       }
@@ -42,14 +50,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Function to find available port
+// Hàm tìm port khả dụng (tránh xung đột port)
 async function findAvailablePort(startPort) {
   return new Promise((resolve, reject) => {
     const server = createServer();
 
+    // Xử lý lỗi khi port đã được sử dụng
     server.on('error', async (err) => {
       if (err.code === 'EADDRINUSE') {
         try {
+          // Thử port tiếp theo nếu port hiện tại đã được sử dụng
           const nextPort = await findAvailablePort(startPort + 1);
           resolve(nextPort);
         } catch (error) {
@@ -60,26 +70,29 @@ async function findAvailablePort(startPort) {
       }
     });
 
+    // Thử kết nối đến port
     server.listen(startPort, 'localhost', () => {
       const port = server.address()?.port;
-      server.close(() => resolve(port));
+      server.close(() => resolve(port)); // Đóng server test và trả về port
     });
   });
 }
 
-// Health check endpoint for Docker
-app.get('/api/health', async (req, res) => {
+// Endpoint kiểm tra sức khỏe hệ thống (dành cho Docker health check)
+app.get('/api/health', async (_req, res) => {
   try {
-    // Check MongoDB connection
+    // Kiểm tra kết nối MongoDB
     await mongodb.ensureConnection();
     await mongodb.client.db('admin').command({ ping: 1 });
 
+    // Trả về trạng thái khỏe mạnh
     res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       mongodb: 'connected'
     });
   } catch (error) {
+    // Trả về trạng thái lỗi nếu có vấn đề
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),

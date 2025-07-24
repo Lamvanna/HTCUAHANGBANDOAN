@@ -15,18 +15,22 @@ docker-compose up --build -d
 ## 🚀 **KHỞI ĐỘNG**
 
 ```bash
-# Chạy tất cả services
+# Chạy tất cả services ở chế độ nền (detached mode)
+# Sử dụng hàng ngày để khởi động ứng dụng
 docker-compose up -d
 
-# Build và chạy (khi có thay đổi code)
+# Build lại images và chạy (khi có thay đổi code hoặc Dockerfile)
+# Sử dụng khi: thêm package mới, sửa Dockerfile, hoặc lần đầu chạy
 docker-compose up --build -d
 
-# Chạy và xem logs realtime
+# Chạy và xem logs trực tiếp (không chạy nền)
+# Hữu ích khi debug hoặc theo dõi logs realtime
 docker-compose up
 
-# Chạy chỉ một service
-docker-compose up mongodb -d
-docker-compose up backend -d
+# Chạy chỉ một service cụ thể (ví dụ: chỉ database)
+# Hữu ích khi chỉ cần test database hoặc chạy từng phần
+docker-compose up mongodb -d    # Chỉ chạy MongoDB
+docker-compose up backend -d    # Chỉ chạy Backend API
 ```
 
 ---
@@ -34,19 +38,22 @@ docker-compose up backend -d
 ## ⏹️ **DỪNG**
 
 ```bash
-# Dừng tất cả containers
+# Dừng tất cả containers (giữ nguyên containers để restart nhanh)
 docker-compose stop
 
-# Dừng và xóa containers
+# Dừng và xóa containers (thường dùng nhất - an toàn, giữ data)
+# ⚠️ Lưu ý: Lệnh này chỉ xóa containers, KHÔNG xóa data trong database
 docker-compose down
 
-# Dừng, xóa containers + volumes (xóa data)
+# Dừng, xóa containers + volumes (⚠️ NGUY HIỂM - XÓA TẤT CẢ DATA)
+# Sử dụng khi muốn reset hoàn toàn database và bắt đầu lại từ đầu
 docker-compose down -v
 
-# Dừng, xóa containers + images
+# Dừng, xóa containers + images (tiết kiệm dung lượng ổ cứng)
+# Sử dụng khi muốn dọn dẹp hoàn toàn để build lại từ đầu
 docker-compose down --rmi all
 
-# Dừng một service cụ thể
+# Dừng một service cụ thể (ví dụ: chỉ dừng backend, giữ database chạy)
 docker-compose stop backend
 ```
 
@@ -55,16 +62,19 @@ docker-compose stop backend
 ## 🔄 **RESTART**
 
 ```bash
-# Restart tất cả
+# Restart tất cả services (nhanh nhất, giữ nguyên cấu hình)
+# Sử dụng khi: server bị lag, cần refresh toàn bộ hệ thống
 docker-compose restart
 
-# Restart một service
-docker-compose restart backend
-docker-compose restart mongodb
+# Restart một service cụ thể (chỉ restart phần cần thiết)
+# Sử dụng khi: chỉ backend có vấn đề, database vẫn ổn
+docker-compose restart backend    # Restart API server
+docker-compose restart mongodb    # Restart database
 
-# Restart với rebuild
-docker-compose down
-docker-compose up --build -d
+# Restart với rebuild (chậm hơn nhưng đảm bảo cập nhật code mới)
+# Sử dụng khi: có thay đổi code quan trọng cần build lại
+docker-compose down               # Dừng và xóa containers
+docker-compose up --build -d     # Build lại và chạy
 ```
 
 ---
@@ -96,24 +106,26 @@ docker volume ls
 ## 📝 **XEM LOGS**
 
 ```bash
-# Logs tất cả services
+# Xem logs của tất cả services (một lần, không theo dõi tiếp)
+# Hữu ích để xem tổng quan lỗi của toàn bộ hệ thống
 docker-compose logs
 
-# Logs realtime (follow)
+# Xem logs realtime (theo dõi liên tục - follow mode)
+# Sử dụng khi: debug lỗi, theo dõi request, monitor hệ thống
 docker-compose logs -f
 
-# Logs một service cụ thể
-docker-compose logs backend
-docker-compose logs mongodb
-docker-compose logs redis
+# Xem logs của một service cụ thể (tập trung vào một phần)
+docker-compose logs backend     # Logs của API server
+docker-compose logs mongodb     # Logs của database
+docker-compose logs redis       # Logs của cache server
 
-# Logs với số dòng giới hạn
-docker-compose logs --tail=50 backend
-docker-compose logs --tail=100 -f backend
+# Xem logs với giới hạn số dòng (tránh quá nhiều thông tin)
+docker-compose logs --tail=50 backend      # 50 dòng cuối
+docker-compose logs --tail=100 -f backend  # 100 dòng cuối + theo dõi tiếp
 
-# Logs từ thời gian cụ thể
-docker-compose logs --since=10m backend
-docker-compose logs --since="2024-01-24T10:00:00" backend
+# Xem logs từ thời gian cụ thể (lọc theo thời gian)
+docker-compose logs --since=10m backend                    # 10 phút gần đây
+docker-compose logs --since="2025-07-24T10:00:00" backend  # Từ thời điểm cụ thể
 ```
 
 ---
@@ -486,4 +498,27 @@ nafood-redis        Up                  0.0.0.0:6379->6379/tcp
 
 **🚀 Docker Commands Ready! Bookmark this page for quick reference!**
 
-**💡 Pro tip: Use `Ctrl+F` to quickly find the command you need!**
+**💡 Mẹo hay: Sử dụng `Ctrl+F` để tìm nhanh lệnh bạn cần!**
+
+---
+
+## 🎯 **LỆNH THƯỜNG DÙNG NHẤT**
+
+```bash
+# Khởi động hệ thống (hàng ngày)
+docker-compose up -d
+
+# Dừng hệ thống (an toàn, giữ data)
+docker-compose down
+
+# Restart khi có vấn đề
+docker-compose restart
+
+# Build lại khi có code mới
+docker-compose up --build -d
+
+# Xem logs khi debug
+docker-compose logs -f backend
+```
+
+**📝 Ghi nhớ: `docker-compose down` là lệnh an toàn nhất để dừng hệ thống!**
