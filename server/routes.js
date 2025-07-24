@@ -17,7 +17,7 @@ import {
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
-// Ensure uploads directory exists
+// Đảm bảo thư mục uploads tồn tại để tránh lỗi file upload
 const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -42,16 +42,24 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter: function (req, file, cb) {
-    // Check file type
-    if (file.mimetype.startsWith('image/')) {
+    // Sửa lỗi bảo mật: kiểm tra file type nghiêm ngặt hơn
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp'
+    ];
+
+    if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Chỉ chấp nhận file hình ảnh!'), false);
+      cb(new Error('Chỉ chấp nhận file hình ảnh (JPEG, PNG, GIF, WebP)!'), false);
     }
   }
 });
 
-// Middleware for JWT authentication
+// Middleware xác thực JWT - sửa lỗi bảo mật và cải thiện error handling
 const authenticateToken = (req, res, next) => {
   console.log('Auth middleware called for:', req.method, req.url);
 
@@ -63,18 +71,30 @@ const authenticateToken = (req, res, next) => {
 
   if (!token) {
     console.log('No token provided');
-    return res.status(401).json({ message: 'Access token required' });
+    return res.status(401).json({ message: 'Yêu cầu token xác thực' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      console.log('JWT verification error:', err.message);
-      return res.status(403).json({ message: 'Invalid or expired token' });
-    }
-    console.log('User authenticated:', user.id, user.email);
-    req.user = user;
-    next();
-  });
+  // Sửa lỗi: thêm try-catch để xử lý lỗi JWT tốt hơn
+  try {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        console.log('JWT verification error:', err.message);
+        // Cải thiện thông báo lỗi dựa trên loại lỗi
+        if (err.name === 'TokenExpiredError') {
+          return res.status(401).json({ message: 'Token đã hết hạn' });
+        } else if (err.name === 'JsonWebTokenError') {
+          return res.status(403).json({ message: 'Token không hợp lệ' });
+        }
+        return res.status(403).json({ message: 'Lỗi xác thực token' });
+      }
+      console.log('User authenticated:', user.id, user.email);
+      req.user = user;
+      next();
+    });
+  } catch (error) {
+    console.error('Unexpected JWT error:', error);
+    return res.status(500).json({ message: 'Lỗi hệ thống xác thực' });
+  }
 };
 
 // Middleware for role-based access

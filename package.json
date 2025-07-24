@@ -16,7 +16,9 @@
     "start": "node start.js",
     "start:prod": "node start-prod.js",
     "seed": "node scripts/seed-data.js",
-    "create-test-orders": "node scripts/create-test-orders.js"
+    "create-test-orders": "node scripts/create-test-orders.js",
+    "validate-env": "node scripts/validate-env.js",
+    "prestart": "npm run validate-env"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
