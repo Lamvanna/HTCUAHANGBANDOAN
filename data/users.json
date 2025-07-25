@@ -1,0 +1,34 @@
+[
+  {
+    "_id": "507f1f77bcf86cd799439011",
+    "username": "admin",
+    "email": "admin@nafood.com",
+    "password": "$2b$10$rOvHPGkwMkMZOw8GHWKOHOELWMtlVXZhjM4t8VQ7Q2QzQ8Q8Q8Q8Q",
+    "role": "admin",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439012",
+    "username": "staff_nguyen",
+    "email": "nguyen@nafood.com",
+    "password": "$2b$10$rOvHPGkwMkMZOw8GHWKOHOELWMtlVXZhjM4t8VQ7Q2QzQ8Q8Q8Q8Q",
+    "role": "staff",
+    "createdAt": "2024-01-02T08:00:00.000Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439013",
+    "username": "customer_tran",
+    "email": "tran.van.a@gmail.com",
+    "password": "$2b$10$rOvHPGkwMkMZOw8GHWKOHOELWMtlVXZhjM4t8VQ7Q2QzQ8Q8Q8Q8Q",
+    "role": "customer",
+    "createdAt": "2024-01-03T10:30:00.000Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439014",
+    "username": "customer_le",
+    "email": "le.thi.b@gmail.com",
+    "password": "$2b$10$rOvHPGkwMkMZOw8GHWKOHOELWMtlVXZhjM4t8VQ7Q2QzQ8Q8Q8Q8Q",
+    "role": "customer",
+    "createdAt": "2024-01-04T14:20:00.000Z"
+  }
+]

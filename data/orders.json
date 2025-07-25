@@ -1,0 +1,96 @@
+[
+  {
+    "_id": "order001",
+    "customerId": "507f1f77bcf86cd799439013",
+    "items": [
+      {
+        "productId": "prod001",
+        "productName": "Bánh mì thịt nướng",
+        "quantity": 2,
+        "price": 25000,
+        "subtotal": 50000
+      },
+      {
+        "productId": "prod007",
+        "productName": "Trà đá",
+        "quantity": 2,
+        "price": 5000,
+        "subtotal": 10000
+      }
+    ],
+    "total": 60000,
+    "status": "delivered",
+    "customerInfo": {
+      "name": "Trần Văn A",
+      "phone": "0123456789",
+      "address": "123 Đường Nguyễn Huệ, Quận 1, TP.HCM",
+      "email": "tran.van.a@gmail.com"
+    },
+    "paymentMethod": "cash",
+    "notes": "Không cần rau sống",
+    "orderDate": "2024-01-10T11:30:00.000Z",
+    "deliveryDate": "2024-01-10T12:15:00.000Z"
+  },
+  {
+    "_id": "order002",
+    "customerId": "507f1f77bcf86cd799439014",
+    "items": [
+      {
+        "productId": "prod003",
+        "productName": "Phở bò tái",
+        "quantity": 1,
+        "price": 45000,
+        "subtotal": 45000
+      },
+      {
+        "productId": "prod008",
+        "productName": "Cà phê sữa đá",
+        "quantity": 1,
+        "price": 15000,
+        "subtotal": 15000
+      }
+    ],
+    "total": 60000,
+    "status": "preparing",
+    "customerInfo": {
+      "name": "Lê Thị B",
+      "phone": "0987654321",
+      "address": "456 Đường Lê Lợi, Quận 3, TP.HCM",
+      "email": "le.thi.b@gmail.com"
+    },
+    "paymentMethod": "card",
+    "notes": "Ít hành",
+    "orderDate": "2024-01-15T13:45:00.000Z"
+  },
+  {
+    "_id": "order003",
+    "customerId": "507f1f77bcf86cd799439013",
+    "items": [
+      {
+        "productId": "prod005",
+        "productName": "Cơm tấm sườn nướng",
+        "quantity": 1,
+        "price": 35000,
+        "subtotal": 35000
+      },
+      {
+        "productId": "prod009",
+        "productName": "Chè ba màu",
+        "quantity": 1,
+        "price": 18000,
+        "subtotal": 18000
+      }
+    ],
+    "total": 53000,
+    "status": "confirmed",
+    "customerInfo": {
+      "name": "Trần Văn A",
+      "phone": "0123456789",
+      "address": "123 Đường Nguyễn Huệ, Quận 1, TP.HCM",
+      "email": "tran.van.a@gmail.com"
+    },
+    "paymentMethod": "cash",
+    "notes": "",
+    "orderDate": "2024-01-15T18:20:00.000Z"
+  }
+]

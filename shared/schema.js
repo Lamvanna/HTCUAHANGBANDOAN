@@ -17,9 +17,14 @@ export const insertProductSchema = z.object({
   description: z.string().optional(),
   price: z.union([z.string(), z.number()]).transform(val => {
     if (typeof val === 'string') {
-      const parsed = parseFloat(val);
-      if (isNaN(parsed)) throw new Error('Invalid price format');
+      // Loại bỏ dấu chấm phân cách hàng nghìn và chuyển đổi
+      const cleanedVal = val.replace(/\./g, '');
+      const parsed = parseFloat(cleanedVal);
+      if (isNaN(parsed) || parsed < 0) throw new Error('Invalid price format');
       return parsed;
+    }
+    if (typeof val === 'number' && (isNaN(val) || val < 0)) {
+      throw new Error('Invalid price format');
     }
     return val;
   }),

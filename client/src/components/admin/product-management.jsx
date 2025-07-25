@@ -303,11 +303,25 @@ export default function ProductManagement() {
   );
 }
 
+// Helper function để format giá hiển thị
+const formatPriceDisplay = (price) => {
+  if (!price) return '';
+  // Chuyển số thành chuỗi và thêm dấu chấm phân cách hàng nghìn
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
+// Helper function để parse giá từ display về số
+const parsePriceFromDisplay = (displayPrice) => {
+  if (!displayPrice) return '';
+  // Loại bỏ dấu chấm phân cách
+  return displayPrice.replace(/\./g, '');
+};
+
 function ProductForm({ product, onSubmit, isLoading }) {
   const [formData, setFormData] = useState({
     name: product?.name || '',
     description: product?.description || '',
-    price: product?.price || '',
+    price: product?.price ? formatPriceDisplay(product.price) : '',
     category: product?.category || '',
     image: product?.image || '',
     isActive: product?.isActive ?? true,
@@ -315,9 +329,11 @@ function ProductForm({ product, onSubmit, isLoading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Chuyển đổi giá thành số, loại bỏ dấu chấm phân cách hàng nghìn
+    const priceValue = parseFloat(parsePriceFromDisplay(formData.price));
     onSubmit({
       ...formData,
-      price: Number(formData.price),
+      price: priceValue,
     });
   };
 
@@ -341,9 +357,16 @@ function ProductForm({ product, onSubmit, isLoading }) {
           <Label htmlFor="price">Giá *</Label>
           <Input
             id="price"
-            type="number"
+            type="text"
             value={formData.price}
-            onChange={(e) => handleChange('price', e.target.value)}
+            onChange={(e) => {
+              // Chỉ cho phép số
+              const value = e.target.value.replace(/[^0-9]/g, '');
+              // Format với dấu chấm phân cách hàng nghìn
+              const formattedValue = formatPriceDisplay(value);
+              handleChange('price', formattedValue);
+            }}
+            placeholder="Ví dụ: 289000 hoặc 289.000"
             required
           />
         </div>

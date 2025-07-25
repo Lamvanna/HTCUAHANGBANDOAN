@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "banner001",
+    "title": "Khuyến mãi đặc biệt - Giảm 20%",
+    "description": "Giảm 20% cho tất cả món bánh mì trong tuần này",
+    "image": "/uploads/banners/khuyen-mai-banh-mi.jpg",
+    "link": "/products?category=cat001",
+    "active": true,
+    "startDate": "2024-01-15T00:00:00.000Z",
+    "endDate": "2024-01-22T23:59:59.000Z",
+    "position": "hero",
+    "createdAt": "2024-01-14T10:00:00.000Z"
+  },
+  {
+    "_id": "banner002",
+    "title": "Phở bò đặc biệt",
+    "description": "Thử ngay phở bò tái đặc biệt với nước dùng 24h",
+    "image": "/uploads/banners/pho-bo-dac-biet.jpg",
+    "link": "/products/prod003",
+    "active": true,
+    "startDate": "2024-01-10T00:00:00.000Z",
+    "endDate": "2024-01-31T23:59:59.000Z",
+    "position": "sidebar",
+    "createdAt": "2024-01-09T15:30:00.000Z"
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "review001",
+    "productId": "prod001",
+    "customerId": "507f1f77bcf86cd799439013",
+    "customerName": "Trần Văn A",
+    "rating": 5,
+    "comment": "Bánh mì rất ngon, thịt nướng thơm, bánh giòn. Sẽ quay lại!",
+    "createdAt": "2024-01-10T14:30:00.000Z"
+  },
+  {
+    "_id": "review002",
+    "productId": "prod003",
+    "customerId": "507f1f77bcf86cd799439014",
+    "customerName": "Lê Thị B",
+    "rating": 4,
+    "comment": "Phở ngon, nước dùng đậm đà. Thịt bò tươi ngon.",
+    "createdAt": "2024-01-12T16:45:00.000Z"
+  },
+  {
+    "_id": "review003",
+    "productId": "prod005",
+    "customerId": "507f1f77bcf86cd799439013",
+    "customerName": "Trần Văn A",
+    "rating": 5,
+    "comment": "Cơm tấm ngon, sườn nướng vừa ăn. Giá cả hợp lý.",
+    "createdAt": "2024-01-13T19:20:00.000Z"
+  }
+]

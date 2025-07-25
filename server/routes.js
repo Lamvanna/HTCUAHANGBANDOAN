@@ -148,6 +148,70 @@ export async function registerRoutes(app) {
   });
 
   // Authentication routes
+  /**
+   * @swagger
+   * /api/auth/register:
+   *   post:
+   *     summary: Đăng ký tài khoản mới
+   *     tags: [Authentication]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - email
+   *               - password
+   *               - confirmPassword
+   *               - fullName
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 format: email
+   *                 description: Email người dùng
+   *                 example: "john@example.com"
+   *               password:
+   *                 type: string
+   *                 format: password
+   *                 minLength: 6
+   *                 description: Mật khẩu (tối thiểu 6 ký tự)
+   *                 example: "password123"
+   *               confirmPassword:
+   *                 type: string
+   *                 format: password
+   *                 description: Xác nhận mật khẩu
+   *                 example: "password123"
+   *               fullName:
+   *                 type: string
+   *                 description: Tên đầy đủ
+   *                 example: "John Doe"
+   *     responses:
+   *       201:
+   *         description: Đăng ký thành công
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Đăng ký thành công"
+   *                 user:
+   *                   $ref: '#/components/schemas/User'
+   *       400:
+   *         description: Dữ liệu không hợp lệ
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       409:
+   *         description: Email đã tồn tại
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   app.post("/api/auth/register", async (req, res) => {
     try {
       console.log('Register request body:', JSON.stringify(req.body, null, 2));
@@ -204,6 +268,61 @@ export async function registerRoutes(app) {
     }
   });
 
+  /**
+   * @swagger
+   * /api/auth/login:
+   *   post:
+   *     summary: Đăng nhập
+   *     tags: [Authentication]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - email
+   *               - password
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 format: email
+   *                 description: Email đăng nhập
+   *                 example: "john@example.com"
+   *               password:
+   *                 type: string
+   *                 format: password
+   *                 description: Mật khẩu
+   *                 example: "password123"
+   *     responses:
+   *       200:
+   *         description: Đăng nhập thành công
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Đăng nhập thành công"
+   *                 token:
+   *                   type: string
+   *                   description: JWT token
+   *                 user:
+   *                   $ref: '#/components/schemas/User'
+   *       400:
+   *         description: Dữ liệu không hợp lệ
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       401:
+   *         description: Email hoặc mật khẩu không đúng
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   app.post("/api/auth/login", async (req, res) => {
     try {
       const validatedData = loginSchema.parse(req.body);
@@ -246,6 +365,39 @@ export async function registerRoutes(app) {
   });
 
   // Product routes
+  /**
+   * @swagger
+   * /api/products:
+   *   get:
+   *     summary: Lấy danh sách sản phẩm
+   *     tags: [Products]
+   *     parameters:
+   *       - in: query
+   *         name: category
+   *         schema:
+   *           type: string
+   *         description: Lọc theo danh mục
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Tìm kiếm theo tên sản phẩm
+   *     responses:
+   *       200:
+   *         description: Danh sách sản phẩm
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/Product'
+   *       500:
+   *         description: Lỗi server
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   app.get("/api/products", async (req, res) => {
     try {
       const { category, search } = req.query;
@@ -277,6 +429,76 @@ export async function registerRoutes(app) {
     }
   });
 
+  /**
+   * @swagger
+   * /api/products:
+   *   post:
+   *     summary: Tạo sản phẩm mới
+   *     tags: [Products]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - name
+   *               - price
+   *               - category
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 description: Tên sản phẩm
+   *                 example: "Bánh mì thịt nướng"
+   *               description:
+   *                 type: string
+   *                 description: Mô tả sản phẩm
+   *                 example: "Bánh mì thơm ngon với thịt nướng"
+   *               price:
+   *                 type: number
+   *                 minimum: 0
+   *                 description: Giá sản phẩm
+   *                 example: 25000
+   *               category:
+   *                 type: string
+   *                 description: Danh mục sản phẩm
+   *                 example: "Bánh mì"
+   *               image:
+   *                 type: string
+   *                 description: URL hình ảnh
+   *                 example: "/uploads/banh-mi.jpg"
+   *               available:
+   *                 type: boolean
+   *                 default: true
+   *                 description: Trạng thái có sẵn
+   *     responses:
+   *       201:
+   *         description: Tạo sản phẩm thành công
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Product'
+   *       400:
+   *         description: Dữ liệu không hợp lệ
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       401:
+   *         description: Chưa xác thực
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       403:
+   *         description: Không có quyền truy cập
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   app.post("/api/products", authenticateToken, requireRole(['admin']), async (req, res) => {
     try {
       const validatedData = insertProductSchema.parse(req.body);

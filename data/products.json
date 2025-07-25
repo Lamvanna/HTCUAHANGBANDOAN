@@ -1,0 +1,227 @@
+[
+  {
+    "_id": "prod001",
+    "name": "Bánh mì thịt nướng",
+    "description": "Bánh mì giòn với thịt nướng thơm ngon, rau sống tươi mát",
+    "price": 25000,
+    "category": "cat001",
+    "image": "/uploads/products/banh-mi-thit-nuong.jpg",
+    "available": true,
+    "ingredients": [
+      "bánh mì",
+      "thịt nướng",
+      "rau sống",
+      "đồ chua",
+      "tương ớt"
+    ],
+    "nutrition": {
+      "calories": 320,
+      "protein": 18,
+      "carbs": 35,
+      "fat": 12
+    },
+    "createdAt": "2024-01-05T08:00:00.000Z"
+  },
+  {
+    "_id": "prod002",
+    "name": "Bánh mì pate",
+    "description": "Bánh mì truyền thống với pate gan, chả lụa",
+    "price": 20000,
+    "category": "cat001",
+    "image": "/uploads/products/banh-mi-pate.jpg",
+    "available": true,
+    "ingredients": [
+      "bánh mì",
+      "pate gan",
+      "chả lụa",
+      "rau sống",
+      "đồ chua"
+    ],
+    "nutrition": {
+      "calories": 280,
+      "protein": 15,
+      "carbs": 32,
+      "fat": 10
+    },
+    "createdAt": "2024-01-05T08:15:00.000Z"
+  },
+  {
+    "_id": "prod003",
+    "name": "Phở bò tái",
+    "description": "Phở bò truyền thống với thịt bò tái, nước dùng đậm đà",
+    "price": 45000,
+    "category": "cat002",
+    "image": "/uploads/products/pho-bo-tai.jpg",
+    "available": true,
+    "ingredients": [
+      "bánh phở",
+      "thịt bò tái",
+      "nước dùng",
+      "hành lá",
+      "ngò gai"
+    ],
+    "nutrition": {
+      "calories": 420,
+      "protein": 25,
+      "carbs": 45,
+      "fat": 15
+    },
+    "createdAt": "2024-01-05T08:30:00.000Z"
+  },
+  {
+    "_id": "prod004",
+    "name": "Phở gà",
+    "description": "Phở gà thơm ngon với thịt gà tươi, nước dùng trong",
+    "price": 40000,
+    "category": "cat002",
+    "image": "/uploads/products/pho-ga.jpg",
+    "available": true,
+    "ingredients": [
+      "bánh phở",
+      "thịt gà",
+      "nước dùng gà",
+      "hành lá",
+      "ngò gai"
+    ],
+    "nutrition": {
+      "calories": 380,
+      "protein": 22,
+      "carbs": 42,
+      "fat": 12
+    },
+    "createdAt": "2024-01-05T08:45:00.000Z"
+  },
+  {
+    "_id": "prod005",
+    "name": "Cơm tấm sườn nướng",
+    "description": "Cơm tấm với sườn nướng, chả trứng, bì",
+    "price": 35000,
+    "category": "cat003",
+    "image": "/uploads/products/com-tam-suon-nuong.jpg",
+    "available": true,
+    "ingredients": [
+      "cơm tấm",
+      "sườn nướng",
+      "chả trứng",
+      "bì",
+      "nước mắm"
+    ],
+    "nutrition": {
+      "calories": 520,
+      "protein": 28,
+      "carbs": 55,
+      "fat": 20
+    },
+    "createdAt": "2024-01-05T09:00:00.000Z"
+  },
+  {
+    "_id": "prod006",
+    "name": "Bún bò Huế",
+    "description": "Bún bò Huế cay nồng đặc trưng miền Trung",
+    "price": 42000,
+    "category": "cat004",
+    "image": "/uploads/products/bun-bo-hue.jpg",
+    "available": true,
+    "ingredients": [
+      "bún",
+      "thịt bò",
+      "chả cua",
+      "nước dùng",
+      "ớt"
+    ],
+    "nutrition": {
+      "calories": 450,
+      "protein": 24,
+      "carbs": 48,
+      "fat": 18
+    },
+    "createdAt": "2024-01-05T09:15:00.000Z"
+  },
+  {
+    "_id": "prod007",
+    "name": "Trà đá",
+    "description": "Trà đá mát lạnh, giải khát",
+    "price": 5000,
+    "category": "cat005",
+    "image": "/uploads/products/tra-da.jpg",
+    "available": true,
+    "ingredients": [
+      "trà",
+      "đá",
+      "đường"
+    ],
+    "nutrition": {
+      "calories": 20,
+      "protein": 0,
+      "carbs": 5,
+      "fat": 0
+    },
+    "createdAt": "2024-01-05T09:30:00.000Z"
+  },
+  {
+    "_id": "prod008",
+    "name": "Cà phê sữa đá",
+    "description": "Cà phê phin truyền thống với sữa đặc",
+    "price": 15000,
+    "category": "cat005",
+    "image": "/uploads/products/ca-phe-sua-da.jpg",
+    "available": true,
+    "ingredients": [
+      "cà phê",
+      "sữa đặc",
+      "đá"
+    ],
+    "nutrition": {
+      "calories": 120,
+      "protein": 3,
+      "carbs": 18,
+      "fat": 4
+    },
+    "createdAt": "2024-01-05T09:45:00.000Z"
+  },
+  {
+    "_id": "prod009",
+    "name": "Chè ba màu",
+    "description": "Chè ba màu truyền thống với đậu xanh, đậu đỏ, thạch",
+    "price": 18000,
+    "category": "cat006",
+    "image": "/uploads/products/che-ba-mau.jpg",
+    "available": true,
+    "ingredients": [
+      "đậu xanh",
+      "đậu đỏ",
+      "thạch",
+      "nước cốt dừa",
+      "đá bào"
+    ],
+    "nutrition": {
+      "calories": 180,
+      "protein": 6,
+      "carbs": 35,
+      "fat": 3
+    },
+    "createdAt": "2024-01-05T10:00:00.000Z"
+  },
+  {
+    "_id": "prod010",
+    "name": "Bánh flan",
+    "description": "Bánh flan mềm mịn với caramel thơm ngon",
+    "price": 12000,
+    "category": "cat006",
+    "image": "/uploads/products/banh-flan.jpg",
+    "available": true,
+    "ingredients": [
+      "trứng",
+      "sữa",
+      "đường",
+      "caramel"
+    ],
+    "nutrition": {
+      "calories": 150,
+      "protein": 5,
+      "carbs": 22,
+      "fat": 5
+    },
+    "createdAt": "2024-01-05T10:15:00.000Z"
+  }
+]

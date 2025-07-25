@@ -1,0 +1,38 @@
+[
+  {
+    "_id": "cat001",
+    "name": "Bánh mì",
+    "description": "Các loại bánh mì truyền thống và hiện đại",
+    "image": "/uploads/categories/banh-mi.jpg"
+  },
+  {
+    "_id": "cat002",
+    "name": "Phở",
+    "description": "Phở bò, phở gà và các loại phở đặc biệt",
+    "image": "/uploads/categories/pho.jpg"
+  },
+  {
+    "_id": "cat003",
+    "name": "Cơm",
+    "description": "Cơm tấm, cơm chiên và các món cơm khác",
+    "image": "/uploads/categories/com.jpg"
+  },
+  {
+    "_id": "cat004",
+    "name": "Bún",
+    "description": "Bún bò Huế, bún riêu, bún chả",
+    "image": "/uploads/categories/bun.jpg"
+  },
+  {
+    "_id": "cat005",
+    "name": "Đồ uống",
+    "description": "Nước ngọt, trà, cà phê, sinh tố",
+    "image": "/uploads/categories/do-uong.jpg"
+  },
+  {
+    "_id": "cat006",
+    "name": "Tráng miệng",
+    "description": "Chè, bánh flan, kem",
+    "image": "/uploads/categories/trang-mieng.jpg"
+  }
+]

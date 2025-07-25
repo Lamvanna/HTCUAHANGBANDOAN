@@ -5,6 +5,7 @@ import { registerRoutes } from "./routes.js";
 import { setupVite, serveStatic, log } from "./vite.js";
 import { mongodb } from "./db.js";
 import { createServer } from "http";
+import { swaggerSpec, swaggerUi, swaggerUiOptions } from "./swagger.js";
 
 // Khởi tạo ứng dụng Express
 const app = express();
@@ -131,6 +132,15 @@ export async function startServer() {
   }
 
   const server = await registerRoutes(app);
+
+  // Setup Swagger documentation
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+
+  // Swagger JSON endpoint
+  app.get('/api-docs.json', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
 
   // Enhanced error handling middleware
   app.use((err, _req, res, _next) => {

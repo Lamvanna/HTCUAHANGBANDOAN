@@ -20,8 +20,8 @@ export default defineConfig({
   },
   root: path.resolve(__dirname, "client"),
   build: {
-    outDir: path.resolve(__dirname, "dist/public"),
-    emptyOutDir: true,
+    outDir: path.resolve(__dirname, "public"),
+    emptyOutDir: false, // Không xóa thư mục uploads
   },
   server: {
     fs: {
