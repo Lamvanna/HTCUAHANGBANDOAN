@@ -24,9 +24,16 @@ vite.config.ts.*
 logs/
 *.log
 
-# Uploads
+# Uploads (ignore user uploaded files but keep screenshots for README)
 public/uploads/*
 !public/uploads/.gitkeep
+!public/uploads/Trangchu.png
+!public/uploads/Thucdon.png
+!public/uploads/Vechungtoi.png
+!public/uploads/ADMIN.png
+!public/uploads/Donhangcuatoi.png
+!public/uploads/Quanlysanpham.png
+!public/uploads/Quanlydonhang.png
 
 # Debug and test files
 debug-*.js
